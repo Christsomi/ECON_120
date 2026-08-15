@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>ECON 120 | Graph Skills Preparation</title>
+  <style>
+    :root{--ink:#1d3042;--muted:#5b6f80;--blue:#1e6797;--orange:#bf6b17;--teal:#14766f;--red:#a73c3c;--paper:#fff;--soft:#f3f6f8;--blue-soft:#eaf3f8;--teal-soft:#e9f5f2;--line:#c9d5dd}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f5f7f8;color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif}button,input{font:inherit}button{cursor:pointer}
+    .shell{max-width:1160px;margin:auto;padding:20px}.hero{background:var(--blue);color:#fff;padding:28px;border-radius:10px}.eyebrow{font-size:.78rem;letter-spacing:.1em;text-transform:uppercase;font-weight:700}.hero h1{font-size:clamp(2rem,5vw,3.2rem);line-height:1.08;margin:.25rem 0 .5rem}.hero p{max-width:800px;margin:.4rem 0}.meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}.pill{border:1px solid #b9d6e7;border-radius:999px;padding:5px 10px;font-size:.9rem}
+    .progress-wrap{position:sticky;top:0;z-index:5;margin:14px 0;background:#fff;border:1px solid var(--line);border-radius:8px;padding:9px 12px}.progress-top{display:flex;justify-content:space-between;gap:12px;font-weight:700;font-size:.92rem}.progress-track{height:7px;background:#dfe7ec;margin-top:7px;border-radius:5px;overflow:hidden}.progress-bar{height:100%;width:10%;background:var(--teal);transition:width .2s}
+    .layout{display:grid;grid-template-columns:245px 1fr;gap:16px}.nav-card,.lesson{background:#fff;border:1px solid var(--line);border-radius:9px}.nav-card{position:sticky;top:78px;align-self:start;padding:10px}.nav-card h2{font-size:.8rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin:5px 8px}.step-tab{display:flex;align-items:center;gap:8px;width:100%;border:0;background:#fff;color:var(--ink);padding:8px;border-radius:5px;text-align:left}.step-tab:hover{background:var(--soft)}.step-tab[aria-current="step"]{background:var(--blue-soft);color:#0b5b88;font-weight:700}.step-num{display:grid;place-items:center;flex:0 0 25px;height:25px;border-radius:50%;background:#e1e9ee;font-size:.78rem}.step-tab[aria-current="step"] .step-num{background:var(--blue);color:#fff}
+    .lesson{padding:clamp(20px,4vw,38px);min-height:720px}.lesson-step[hidden]{display:none}.kicker{color:var(--blue);font-size:.78rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase}.lesson h2{font-size:clamp(1.65rem,4vw,2.35rem);line-height:1.15;margin:.2rem 0 .6rem}.lead{font-size:1.08rem;color:#38546b;max-width:800px}.meaning{border-left:4px solid var(--teal);background:var(--teal-soft);padding:14px 16px;margin:18px 0}.meaning strong{color:#0c625b}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}.card{border:1px solid var(--line);padding:15px;border-radius:7px}.card h3{font-size:1.04rem;margin:.05rem 0 .4rem}.story-card+.story-card{margin-top:18px}.soft{background:var(--soft)}.note{background:#fff8e8;border:1px solid #e3c27c;padding:13px 15px;border-radius:6px}.formula{display:inline-block;background:#edf2f5;padding:7px 9px;border-radius:4px;font:700 1.04rem ui-monospace,SFMono-Regular,Consolas,monospace}.units{font-size:.9rem;color:var(--muted)}
+    .graph-block{margin:16px 0}.graph-title{font-weight:700;margin:0 0 2px}.graph-sub{color:var(--muted);font-size:.92rem;margin:0 0 8px}.graph-canvas{display:block;width:100%;height:auto;background:#fff;border:1px solid var(--line);cursor:default;touch-action:none}.plot-canvas{cursor:crosshair}.legend{display:flex;flex-wrap:wrap;gap:14px;margin:7px 0;color:var(--muted);font-size:.9rem}.swatch{display:inline-block;width:20px;height:3px;vertical-align:middle;margin-right:6px}.swatch.ice{background:var(--blue)}.swatch.choc{background:var(--orange)}
+    .practice{margin-top:19px;border:1px solid #9fc5d9;background:#f6fbfd;padding:16px;border-radius:7px}.practice h3{margin:0 0 4px}.prompt{font-weight:700}.choices{display:grid;gap:8px;margin-top:9px}.choice{border:1px solid #a7bdca;background:#fff;color:var(--ink);padding:9px 11px;text-align:left;border-radius:5px}.choice:hover{border-color:var(--blue)}.choice.correct{border-color:var(--teal);background:var(--teal-soft)}.choice.incorrect{border-color:var(--red);background:#fff0f0}.feedback{min-height:1.5em;margin:8px 0 0;font-weight:700}.feedback.good{color:#087168}.feedback.try{color:#963939}
+    .controls{display:flex;flex-wrap:wrap;gap:12px;align-items:end;margin:10px 0}.control{min-width:165px;flex:1}.control label{display:block;font-weight:700;font-size:.9rem}.control input[type=range]{width:100%}.readout{font-weight:700;color:var(--blue)}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:390px}th,td{border-bottom:1px solid var(--line);padding:8px;text-align:center}th{background:var(--soft)}.table-wrap input[type=number]{width:110px;max-width:100%;border:1px solid #91a5b3;border-radius:5px;padding:8px;background:#fff;color:var(--ink)}.plot-actions,.answer-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}.answer-row{align-items:end}.answer-field{min-width:120px;flex:1}.answer-field label{display:block;font-weight:700;font-size:.9rem}.answer-field input,.story-response{width:100%;border:1px solid #91a5b3;border-radius:5px;padding:9px;background:#fff;color:var(--ink)}.story-response{min-height:120px;resize:vertical}.small-btn,.primary-btn{border:1px solid #91a5b3;background:#fff;color:var(--ink);border-radius:5px;padding:7px 11px}.primary-btn{border-color:var(--blue);background:var(--blue);color:#fff;font-weight:700}.small-btn:disabled,.primary-btn:disabled{opacity:.45;cursor:not-allowed}
+    .step-controls{display:flex;justify-content:space-between;gap:12px;margin-top:26px;padding-top:16px;border-top:1px solid var(--line)}.nav-btn{border:0;border-radius:5px;padding:9px 15px;font-weight:700}.prev{background:#e6edf1;color:var(--ink)}.next{background:var(--blue);color:#fff}.finish{background:var(--teal)}.nav-btn:disabled{opacity:.45;cursor:not-allowed}.summary-list{padding-left:1.2rem}.summary-list li{margin:.42rem 0}.complete{display:none;background:var(--teal-soft);border:1px solid var(--teal);padding:15px;margin-top:18px;border-radius:6px}.complete.show{display:block}footer{text-align:center;color:var(--muted);font-size:.9rem;padding:20px}
+    @media(max-width:820px){.layout{grid-template-columns:1fr}.nav-card{position:static;display:flex;overflow:auto;gap:4px}.nav-card h2{display:none}.step-tab{width:auto;min-width:48px;justify-content:center}.tab-title{display:none}.lesson{min-height:0}.grid{grid-template-columns:1fr}}
+    @media print{body{background:#fff}.shell{max-width:none}.hero{border-radius:0}.progress-wrap,.nav-card,.step-controls,.practice button,.plot-actions{display:none!important}.layout{display:block}.lesson{border:0;padding:0}.lesson-step[hidden]{display:block}.lesson-step{break-inside:avoid;margin-bottom:32px}.complete{display:block}}
+  </style>
+</head>
+<body>
+<main class="shell">
+  <header class="hero"><div class="eyebrow">ECON 120 · Week 1 preparation</div><h1>Read a graph as a story</h1><p>Move from variables and points to relationships, slopes, equations, areas, and curves. Every graph uses numbered scales, gridlines, and correctly joined axes.</p><div class="meta"><span class="pill">About 45 minutes</span><span class="pill">12 short steps</span><span class="pill">Interactive practice</span></div></header>
+  <div class="progress-wrap" aria-live="polite"><div class="progress-top"><span id="progress-name">1. Begin with the axes</span><span id="progress-count">Step 1 of 12</span></div><div class="progress-track" aria-hidden="true"><div class="progress-bar" id="progress-bar"></div></div></div>
+  <div class="layout">
+    <nav class="nav-card" aria-label="Lesson steps"><h2>Lesson path</h2><div id="step-tabs"></div></nav>
+    <article class="lesson">
+      <section class="lesson-step" data-title="Begin with the axes">
+        <div class="kicker">Step 1</div><h2>Begin with the axes</h2>
+        <p class="lead">Before looking at a line or a point, ask two questions: <strong>What is being measured?</strong> and <strong>In what units?</strong> The axis labels provide the answers.</p>
+        <div class="meaning"><strong>Meaning first:</strong> A number such as 4 has no clear meaning by itself. It might mean 4 dollars, 4 hours, or 4 meals. A graph becomes readable when each axis names both the variable and its unit.</div>
+        <div class="graph-block"><p class="graph-title">Temperature and ice-cream sales</p><p class="graph-sub">The arrows show the positive direction; the scale shows how much each step represents.</p><canvas id="axes-graph" class="graph-canvas" width="680" height="500" role="img" aria-label="A numbered coordinate grid with temperature in degrees Celsius on the horizontal axis and ice creams sold per hour on the vertical axis">Temperature is on the horizontal axis; ice-cream sales are on the vertical axis.</canvas></div>
+        <div class="grid"><div class="card soft"><h3>Horizontal axis</h3><p>Temperature is measured in degrees Celsius. Moving right means a higher temperature.</p></div><div class="card soft"><h3>Vertical axis</h3><p>Sales are measured in ice creams per hour. Moving up means more sales.</p></div></div>
+        <div class="practice" data-quiz><h3>Check the scale</h3><p class="prompt">What does the second numbered tick to the right of zero represent?</p><div class="choices"><button class="choice" data-correct="true">A temperature of 10°C.</button><button class="choice">10 ice creams per hour.</button><button class="choice">A slope of 10.</button></div><p class="feedback" aria-live="polite"></p></div>
+      </section>
+
+      <section class="lesson-step" data-title="A point" hidden>
+        <div class="kicker">Step 2</div><h2>A point combines two values</h2>
+        <p class="lead">A point written as <strong>(x, y)</strong> tells you where to move along the horizontal axis first and then where to move along the vertical axis.</p>
+        <div class="meaning"><strong>Read a point as a sentence:</strong> The point (20, 50) means: “When the temperature is 20°C, the shop sells 50 ice creams per hour.” The comma joins two pieces of information about the same observation.</div>
+        <div class="controls"><div class="control"><label for="point-temp">Temperature: <span id="point-temp-out">20</span>°C</label><input id="point-temp" type="range" min="0" max="30" step="5" value="20"></div><div class="control"><label for="point-sales">Sales: <span id="point-sales-out">50</span> per hour</label><input id="point-sales" type="range" min="0" max="70" step="10" value="50"></div><div class="readout" id="point-readout">Point (20, 50)</div></div>
+        <div class="graph-block"><canvas id="point-graph" class="graph-canvas" width="680" height="500" role="img" aria-label="Interactive point on a numbered graph of temperature and ice-cream sales">Use the sliders to move the point.</canvas></div>
+        <div class="practice" data-quiz><h3>Read the ordered pair</h3><p class="prompt">What does (10, 30) mean?</p><div class="choices"><button class="choice">At 30°C, 10 ice creams are sold per hour.</button><button class="choice" data-correct="true">At 10°C, 30 ice creams are sold per hour.</button><button class="choice">Sales rise by 20 ice creams.</button></div><p class="feedback" aria-live="polite"></p></div>
+      </section>
+
+      <section class="lesson-step" data-title="Table to graph" hidden>
+        <div class="kicker">Step 3</div><h2>Plot a table on the graph</h2>
+        <p class="lead">Each row of the table becomes one point. Click the matching grid intersection for every temperature–sales pair.</p>
+        <div class="grid">
+          <div class="card"><h3>Ice-cream sales table</h3><div class="table-wrap"><table><thead><tr><th>Temperature (°C)</th><th>Sales per hour</th></tr></thead><tbody><tr><td>0</td><td>10</td></tr><tr><td>5</td><td>20</td></tr><tr><td>10</td><td>30</td></tr><tr><td>15</td><td>40</td></tr><tr><td>20</td><td>50</td></tr><tr><td>25</td><td>60</td></tr></tbody></table></div><p class="units">The first column supplies x. The second column supplies y.</p></div>
+          <div><h3>Plot the six points</h3><canvas id="plot-graph" class="graph-canvas plot-canvas" width="680" height="500" role="img" aria-label="Clickable coordinate grid for plotting the six points in the table">Click grid intersections to plot the table.</canvas><p class="units">Click near a grid intersection to add a point. Click a plotted point to remove it.</p><div class="plot-actions"><button id="plot-undo" class="small-btn" type="button">Undo</button><button id="plot-clear" class="small-btn" type="button">Clear</button><button id="plot-check" class="primary-btn" type="button">Check points</button></div><p id="plot-status" class="feedback" aria-live="polite">0 of 6 points plotted.</p></div>
+        </div>
+      </section>
+
+      <section class="lesson-step" data-title="Intercepts" hidden>
+        <div class="kicker">Step 4</div><h2>Intercepts describe edge cases</h2>
+        <p class="lead">An intercept is where a graph meets an axis. At that location, the variable measured on the other axis equals zero.</p>
+        <div class="meaning"><strong>Meaning:</strong> An intercept answers an edge-case question: “What does the model predict when one variable is zero?”</div>
+        <div class="grid"><div><h3>Ice cream</h3><canvas id="intercept-ice" class="graph-canvas" width="620" height="470" role="img" aria-label="Ice-cream line with a vertical intercept at 10">At zero degrees Celsius, predicted sales equal 10 per hour.</canvas><p>The vertical intercept (0, 10) says that predicted sales are 10 per hour when temperature is 0°C.</p></div><div><h3>Hot chocolate</h3><canvas id="intercept-choc" class="graph-canvas" width="620" height="470" role="img" aria-label="Hot-chocolate line with intercepts at 120 cups and 30 degrees">At zero degrees sales equal 120; at 30 degrees sales equal zero.</canvas><p>The intercepts (0, 120) and (30, 0) describe sales at zero temperature and the temperature at zero sales.</p></div></div>
+        <p class="note"><strong>Model boundary:</strong> A line can be extended mathematically, but its predictions may stop being realistic. Interpret an intercept within the context and useful range of the model.</p>
+      </section>
+
+      <section class="lesson-step" data-title="Relationships" hidden>
+        <div class="kicker">Step 5</div><h2>Direction describes a relationship</h2>
+        <p class="lead">Direction tells whether the variables move together or in opposite directions.</p>
+        <div class="controls"><div class="control"><label for="compare-temp">Temperature: <span id="compare-temp-out">15</span>°C</label><input id="compare-temp" type="range" min="0" max="30" step="1" value="15"></div><div class="readout" id="compare-readout">Ice cream: 40/hour · Hot chocolate: 60/hour</div></div>
+        <div class="grid"><div><h3>Positive relationship</h3><canvas id="relation-ice" class="graph-canvas" width="620" height="470" role="img" aria-label="Positive relationship between temperature and ice-cream sales">Ice-cream sales rise with temperature.</canvas><p>As temperature rises, predicted ice-cream sales rise.</p></div><div><h3>Negative relationship</h3><canvas id="relation-choc" class="graph-canvas" width="620" height="470" role="img" aria-label="Negative relationship between temperature and hot-chocolate sales">Hot-chocolate sales fall with temperature.</canvas><p>As temperature rises, predicted hot-chocolate sales fall.</p></div></div>
+        <div class="meaning"><strong>Use the words carefully:</strong> “Positive” and “negative” describe movement, not whether something is good or bad. A relationship alone does not prove causation.</div>
+      </section>
+
+      <section class="lesson-step" data-title="Slope" hidden>
+        <div class="kicker">Step 6</div><h2>Slope is a rate of change</h2>
+        <p class="lead">Choose any two points on a straight line. Measure the vertical change, measure the horizontal change, and divide. The result is the same everywhere on that line.</p>
+        <div class="meaning"><strong>Start with the movement:</strong> The symbol <strong>Δ</strong> (the Greek letter delta) means <strong>“change in.”</strong> Therefore, Δx means “change in x,” and Δy means “change in y.” <span class="formula">slope = Δy ÷ Δx</span> Always move from the first point to the second in the same direction when calculating both changes.</div>
+        <h3>Positive constant slope: ice-cream sales</h3>
+        <p>The line rises from left to right, so its slope is positive. The two graphs use different pairs of points on the same line.</p>
+        <div class="grid">
+          <div class="card"><h3>Pair 1: A to B</h3><canvas id="slope-ice-1" class="graph-canvas" width="620" height="470" role="img" aria-label="Ice-cream line with one slope triangle from 5 comma 20 to 15 comma 40">The first point pair gives a slope of positive two.</canvas><ol class="summary-list"><li>Horizontal change: ΔT = 15 − 5 = 10°C.</li><li>Vertical change: ΔI = 40 − 20 = +20 per hour.</li><li><span class="formula">slope = +20 ÷ 10 = +2</span></li></ol></div>
+          <div class="card"><h3>Pair 2: C to D</h3><canvas id="slope-ice-2" class="graph-canvas" width="620" height="470" role="img" aria-label="The same ice-cream line with a slope triangle from 15 comma 40 to 25 comma 60">A different point pair gives the same slope of positive two.</canvas><ol class="summary-list"><li>Horizontal change: ΔT = 25 − 15 = 10°C.</li><li>Vertical change: ΔI = 60 − 40 = +20 per hour.</li><li><span class="formula">slope = +20 ÷ 10 = +2</span></li></ol></div>
+        </div>
+        <p class="note"><strong>What stayed constant?</strong> The triangles are in different locations, but both have a rise of 20 and a run of 10. Every 1°C increase is associated with 2 additional ice creams sold per hour.</p>
+        <h3>Negative constant slope: hot-chocolate sales</h3>
+        <p>The line falls from left to right, so its slope is negative. Again, two different pairs of points produce the same result.</p>
+        <div class="grid">
+          <div class="card"><h3>Pair 1: A to B</h3><canvas id="slope-choc-1" class="graph-canvas" width="620" height="470" role="img" aria-label="Hot-chocolate line with one slope triangle from 5 comma 100 to 15 comma 60">The first point pair gives a slope of negative four.</canvas><ol class="summary-list"><li>Horizontal change: ΔT = 15 − 5 = 10°C.</li><li>Vertical change: ΔH = 60 − 100 = −40 per hour.</li><li><span class="formula">slope = −40 ÷ 10 = −4</span></li></ol></div>
+          <div class="card"><h3>Pair 2: C to D</h3><canvas id="slope-choc-2" class="graph-canvas" width="620" height="470" role="img" aria-label="The same hot-chocolate line with a slope triangle from 15 comma 60 to 25 comma 20">A different point pair gives the same slope of negative four.</canvas><ol class="summary-list"><li>Horizontal change: ΔT = 25 − 15 = 10°C.</li><li>Vertical change: ΔH = 20 − 60 = −40 per hour.</li><li><span class="formula">slope = −40 ÷ 10 = −4</span></li></ol></div>
+        </div>
+        <div class="meaning"><strong>Why the slope is constant:</strong> A straight line has the same steepness everywhere. Changing the two selected points can change the sizes of Δy and Δx, but their ratio remains unchanged. On a curve, the steepness—and therefore the slope—can change.</div>
+        <div class="practice" data-quiz><h3>Check the idea</h3><p class="prompt">Two points farther apart on the same straight line produce a rise of 40 and a run of 20. What should happen to the slope?</p><div class="choices"><button class="choice" data-correct="true">It remains 2 because 40 ÷ 20 equals 2.</button><button class="choice">It doubles because the rise is larger.</button><button class="choice">It becomes zero because the points changed.</button></div><p class="feedback" aria-live="polite"></p></div>
+      </section>
+
+      <section class="lesson-step" data-title="Equations" hidden>
+        <div class="kicker">Step 7</div><h2>An equation summarizes the graph</h2>
+        <p class="lead">Change an intercept or slope and watch the corresponding line move. The equation and graph update together.</p>
+        <div class="grid">
+          <div class="card"><h3>Ice-cream equation</h3><p id="ice-equation" class="formula">I = 10 + 2T</p><div class="controls"><div class="control"><label for="ice-b">Intercept: <span id="ice-b-out">10</span></label><input id="ice-b" type="range" min="0" max="30" step="5" value="10"></div><div class="control"><label for="ice-m">Slope: +<span id="ice-m-out">2</span></label><input id="ice-m" type="range" min="1" max="3" step="0.5" value="2"></div></div><canvas id="equation-ice" class="graph-canvas" width="620" height="470" role="img" aria-label="Interactive ice-cream equation graph">The sliders change the intercept and positive slope.</canvas><p id="ice-equation-meaning">At 0°C, predicted sales are 10 per hour. Each additional 1°C adds 2 sales per hour.</p></div>
+          <div class="card"><h3>Hot-chocolate equation</h3><p id="choc-equation" class="formula">H = 120 − 4T</p><div class="controls"><div class="control"><label for="choc-b">Intercept: <span id="choc-b-out">120</span></label><input id="choc-b" type="range" min="80" max="140" step="10" value="120"></div><div class="control"><label for="choc-m">Slope: −<span id="choc-m-out">4</span></label><input id="choc-m" type="range" min="1" max="5" step="0.5" value="4"></div></div><canvas id="equation-choc" class="graph-canvas" width="620" height="470" role="img" aria-label="Interactive hot-chocolate equation graph">The sliders change the intercept and negative slope.</canvas><p id="choc-equation-meaning">At 0°C, predicted sales are 120 per hour. Each additional 1°C subtracts 4 sales per hour.</p></div>
+        </div>
+      </section>
+
+      <section class="lesson-step" data-title="Put it together" hidden>
+        <div class="kicker">Step 8</div><h2>Explain the whole graph</h2>
+        <p class="lead">Imagine that someone gives you a graph and asks, “What can you tell from it?” Start by finding out what the graph is about. Then use its points, intercepts, slope, and equation to tell the full story.</p>
+        <div class="meaning"><strong>A useful reading order:</strong> What do the axes measure? What does one point mean? Where does the line begin? Does it rise or fall? How fast does it change? What does the equation say? Finally, what does all of this mean in the real world?</div>
+        <div class="card story-card">
+          <h3>Story 1: Ice-cream sales</h3>
+          <p><strong>What are we talking about?</strong> The horizontal axis shows outdoor temperature in degrees Celsius. The vertical axis shows how many ice creams the shop sells per hour. So this graph is about the relationship between temperature and ice-cream sales.</p>
+          <canvas id="whole-ice" class="graph-canvas" width="760" height="520" role="img" aria-label="Complete numbered graph of ice-cream sales and temperature">Ice-cream sales rise with temperature.</canvas>
+          <p><strong>What can we learn from the graph?</strong> The line begins at (0, 10). This means the model predicts 10 ice creams sold per hour when the temperature is 0°C. The point (20, 50) gives another part of the story: at 20°C, the model predicts 50 sales per hour.</p>
+          <p>As we move to the right, the line rises. Temperature and ice-cream sales have a <strong>positive relationship</strong>. The slope is +2, so each 1°C increase is linked to 2 more ice creams sold per hour.</p>
+          <p>The equation <span class="formula">I = 10 + 2T</span> says the same thing in a shorter way: start with 10 sales and add 2 for every additional degree.</p>
+          <p class="note"><strong>The whole story:</strong> In this model, warmer weather is linked to higher ice-cream sales. The graph does not prove that temperature is the only cause of sales, but it shows a clear positive relationship.</p>
+        </div>
+        <div class="card story-card">
+          <h3>Story 2: Hot-chocolate sales</h3>
+          <p><strong>What are we talking about?</strong> The horizontal axis again shows outdoor temperature in degrees Celsius. This time, the vertical axis shows cups of hot chocolate sold per hour. The graph is about the relationship between temperature and hot-chocolate sales.</p>
+          <canvas id="whole-choc" class="graph-canvas" width="760" height="520" role="img" aria-label="Complete numbered graph of hot-chocolate sales and temperature">Hot-chocolate sales fall with temperature.</canvas>
+          <p><strong>What can we learn from the graph?</strong> The line begins at (0, 120). This means the model predicts 120 cups sold per hour when the temperature is 0°C. The point (20, 40) means that at 20°C, the model predicts 40 cups sold per hour. The other intercept, (30, 0), means predicted sales reach zero at 30°C.</p>
+          <p>As we move to the right, the line falls. Temperature and hot-chocolate sales have a <strong>negative relationship</strong>. The slope is −4, so each 1°C increase is linked to 4 fewer cups sold per hour.</p>
+          <p>The equation <span class="formula">H = 120 − 4T</span> tells us to start with 120 sales and subtract 4 for every additional degree.</p>
+          <p class="note"><strong>The whole story:</strong> In this model, warmer weather is linked to lower hot-chocolate sales. Temperature is not the only thing that affects sales, but the graph shows a clear negative relationship.</p>
+        </div>
+        <div class="practice" data-quiz><h3>Choose the strongest graph story</h3><p class="prompt">Which statement best explains the ice-cream graph?</p><div class="choices"><button class="choice">The line goes up.</button><button class="choice" data-correct="true">The graph compares temperature with ice-cream sales; each 1°C increase is linked to 2 more sales per hour.</button><button class="choice">Temperature is the only thing that can affect ice-cream sales.</button></div><p class="feedback" aria-live="polite"></p></div>
+      </section>
+
+      <section class="lesson-step" data-title="Triangle areas" hidden>
+        <div class="kicker">Step 9</div><h2>Calculate areas from linear graphs</h2>
+        <p class="lead">A region above or below a straight line may form a right triangle. Read the base and height as differences between coordinates, then apply the triangle formula.</p>
+        <div class="meaning"><strong>Area of a right triangle:</strong> <span class="formula">½ × base × height</span>. Base and height are lengths, so subtract their endpoint values first.</div>
+        <div class="grid">
+          <div class="card"><h3>Area below a line</h3><canvas id="area-below" class="graph-canvas" width="620" height="470" role="img" aria-label="Numbered graph with a shaded triangle below a linear segment">The triangle has base 4 and height 7.</canvas><p>Base: 4 − 0 = 4<br>Height: 12 − 5 = 7</p><p class="formula">½ × 4 × 7 = 14</p></div>
+          <div class="card"><h3>Area above a line</h3><canvas id="area-above" class="graph-canvas" width="620" height="470" role="img" aria-label="Numbered graph with a shaded triangle above a linear segment">The triangle has base 5 and height 8.</canvas><p>Base: 5 − 0 = 5<br>Height: 11 − 3 = 8</p><p class="formula">½ × 5 × 8 = 20</p></div>
+        </div>
+        <div class="practice" data-quiz><h3>Check the method</h3><p class="prompt">A shaded right triangle extends from x = 2 to x = 8 and from y = 4 to y = 10. What is its area?</p><div class="choices"><button class="choice">36 square units</button><button class="choice" data-correct="true">18 square units</button><button class="choice">12 square units</button></div><p class="feedback" aria-live="polite"></p></div>
+      </section>
+
+      <section class="lesson-step" data-title="Concave and convex" hidden>
+        <div class="kicker">Step 10</div><h2>Curves can be concave or convex</h2>
+        <p class="lead">First ask: does the curve rise or fall? Then ask: does it become steeper or flatter?</p>
+        <div class="meaning"><strong>Slope on a curve:</strong> The green line touches the curve at one point. It shows how steep the curve is there. A curve can have a different slope at each point, so its slope is <strong>not constant</strong>.</div>
+        <h3>Concave: diminishing increases</h3>
+        <div class="card soft"><h3>Real-world story</h3><p>At first, warmer weather may bring a large jump in ice-cream sales. Later, the shop may be close to capacity. Sales still rise, but by smaller amounts.</p></div>
+        <p>These graphs show the same curve at two temperature levels.</p>
+        <div class="grid">
+          <div class="card"><h3>Lower temperature</h3><canvas id="curve-ice-early" class="graph-canvas" width="620" height="470" role="img" aria-label="A rising concave ice-cream sales curve with a steep tangent at temperature level 1 and slope approximately positive 3.5">Ice-cream sales have a relatively steep positive slope at the lower temperature.</canvas><p><span class="formula">slope ≈ +3.5</span> Sales rise quickly.</p></div>
+          <div class="card"><h3>Higher temperature</h3><canvas id="curve-ice-late" class="graph-canvas" width="620" height="470" role="img" aria-label="The same rising concave ice-cream sales curve with a flatter tangent at temperature level 4 and slope approximately positive 0.4">The same ice-cream sales curve has a smaller positive slope at the higher temperature.</canvas><p><span class="formula">slope ≈ +0.4</span> Sales still rise, but slowly.</p></div>
+        </div>
+        <p class="note"><strong>Why is it concave?</strong> Both slopes are positive, so sales rise. But +0.4 is smaller than +3.5, so the curve becomes flatter. This is called <strong>diminishing increases</strong>: sales keep increasing, but each equal temperature increase adds less than the one before.</p>
+        <h3>Convex: diminishing decreases</h3>
+        <div class="card soft"><h3>Real-world story</h3><p>At first, warmer weather may cause a large drop in hot-chocolate sales. Later, sales are already low. They still fall, but by smaller amounts.</p></div>
+        <p>These graphs show the same curve at two temperature levels.</p>
+        <div class="grid">
+          <div class="card"><h3>Lower temperature</h3><canvas id="curve-choc-early" class="graph-canvas" width="620" height="470" role="img" aria-label="A falling convex hot-chocolate sales curve with a steep tangent at temperature level 1 and slope approximately negative 3.5">Hot-chocolate sales have a relatively steep negative slope at the lower temperature.</canvas><p><span class="formula">slope ≈ −3.5</span> Sales fall quickly.</p></div>
+          <div class="card"><h3>Higher temperature</h3><canvas id="curve-choc-late" class="graph-canvas" width="620" height="470" role="img" aria-label="The same falling convex hot-chocolate sales curve with a flatter tangent at temperature level 4 and slope approximately negative 0.4">The same hot-chocolate sales curve has a negative slope closer to zero at the higher temperature.</canvas><p><span class="formula">slope ≈ −0.4</span> Sales still fall, but slowly.</p></div>
+        </div>
+        <p class="note"><strong>Why is it convex?</strong> Both slopes are negative, so sales fall. But −0.4 is closer to zero than −3.5, so the curve becomes flatter. This is called <strong>diminishing decreases</strong>: sales keep decreasing, but each equal temperature increase subtracts less than the one before.</p>
+        <div class="meaning"><strong>Remember:</strong> A straight line has the same slope everywhere. A curve does not. <strong>Diminishing increases</strong> means rising by smaller amounts. <strong>Diminishing decreases</strong> means falling by smaller amounts.</div>
+        <div class="practice" data-quiz><h3>Check the real-world meaning</h3><p class="prompt">Hot-chocolate sales fall by 30 units after one temperature increase but by only 5 units after the same-sized increase at a higher temperature. What does this suggest?</p><div class="choices"><button class="choice" data-correct="true">The relationship is negative and becoming flatter, which is consistent with the convex curve shown above.</button><button class="choice">The relationship is positive because the temperature increased.</button><button class="choice">The slope is constant because both changes involve temperature.</button></div><p class="feedback" aria-live="polite"></p></div>
+      </section>
+
+      <section class="lesson-step" data-title="Mixed practice" hidden>
+        <div class="kicker">Step 11</div><h2>Mixed graph-skills practice</h2>
+        <p class="lead">Try several kinds of problems. Use the feedback to check both your calculation and your interpretation.</p>
+
+        <div class="practice" data-quiz>
+          <h3>1. Multiple choice: read a point</h3>
+          <p class="prompt">On a graph with temperature on the horizontal axis and ice-cream sales per hour on the vertical axis, what does the point (15, 40) mean?</p>
+          <div class="choices"><button class="choice">At 40°C, the shop sells 15 ice creams per hour.</button><button class="choice" data-correct="true">At 15°C, the shop sells 40 ice creams per hour.</button><button class="choice">Each 1°C increase adds 25 sales per hour.</button></div>
+          <p class="feedback" aria-live="polite"></p>
+        </div>
+
+        <div class="practice">
+          <h3>2. Interactive challenge: match a line</h3>
+          <p class="prompt">Use the sliders to make your solid line match the dotted target line <span class="formula">Y = 10 + 2X</span>.</p>
+          <div class="controls"><div class="control"><label for="practice-b">Intercept: <span id="practice-b-out">0</span></label><input id="practice-b" type="range" min="0" max="30" step="5" value="0"></div><div class="control"><label for="practice-m">Slope: <span id="practice-m-out">0</span></label><input id="practice-m" type="range" min="0" max="4" step="1" value="0"></div><div class="readout" id="practice-equation">Your line: Y = 0 + 0X</div></div>
+          <canvas id="practice-line" class="graph-canvas" width="760" height="520" role="img" aria-label="Interactive graph for matching an intercept of 10 and slope of 2">Move the sliders until the solid line matches the dotted target line.</canvas>
+          <div class="plot-actions"><button id="practice-line-check" class="primary-btn" type="button">Check my line</button></div>
+          <p id="practice-line-feedback" class="feedback" aria-live="polite"></p>
+        </div>
+
+        <div class="grid">
+          <div class="practice">
+            <h3>3. Calculate a slope</h3>
+            <p class="prompt">A straight line passes through A(4, 18) and B(10, 42). Find Δx, Δy, and the slope.</p>
+            <div class="answer-row"><div class="answer-field"><label for="practice-dx">Δx</label><input id="practice-dx" type="number" inputmode="decimal"></div><div class="answer-field"><label for="practice-dy">Δy</label><input id="practice-dy" type="number" inputmode="decimal"></div><div class="answer-field"><label for="practice-slope">Slope</label><input id="practice-slope" type="number" inputmode="decimal"></div></div>
+            <div class="plot-actions"><button id="practice-slope-check" class="primary-btn" type="button">Check calculation</button></div>
+            <p id="practice-slope-feedback" class="feedback" aria-live="polite"></p>
+          </div>
+          <div class="practice">
+            <h3>4. Calculate a triangle’s area</h3>
+            <p class="prompt">Use the coordinates on the graph to find the triangle’s base, height, and area.</p>
+            <canvas id="practice-area-graph" class="graph-canvas" width="620" height="470" role="img" aria-label="A shaded right triangle with vertices 1 comma 1, 7 comma 1, and 1 comma 9">The triangle’s vertices are (1, 1), (7, 1), and (1, 9).</canvas>
+            <div class="answer-row"><div class="answer-field"><label for="practice-area-base">Base</label><input id="practice-area-base" type="number" inputmode="decimal"></div><div class="answer-field"><label for="practice-area-height">Height</label><input id="practice-area-height" type="number" inputmode="decimal"></div><div class="answer-field"><label for="practice-area">Area</label><input id="practice-area" type="number" inputmode="decimal"></div></div>
+            <div class="plot-actions"><button id="practice-area-check" class="primary-btn" type="button">Check area</button></div>
+            <p id="practice-area-feedback" class="feedback" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <div class="practice" data-quiz>
+          <h3>5. Multiple choice: classify a curve</h3>
+          <p class="prompt">Ice-cream sales rise by 12 units after one temperature increase, then by 7 units, and then by 3 units after equal temperature increases. Which description fits best?</p>
+          <div class="choices"><button class="choice" data-correct="true">A positive, concave relationship with diminishing increases.</button><button class="choice">A negative, convex relationship with diminishing decreases.</button><button class="choice">A straight line with a constant slope of 12.</button></div>
+          <p class="feedback" aria-live="polite"></p>
+        </div>
+
+        <div class="practice">
+          <h3>6. Write a graph story</h3>
+          <p class="prompt">Let T be temperature in °C and H be hot chocolates sold per hour. Explain the graph summarized by <span class="formula">H = 90 − 3T</span>. Mention the variables, intercept, direction, slope, and real-world meaning.</p>
+          <label for="practice-story" class="units">Write two or three sentences, then compare your response with the model answer.</label>
+          <textarea id="practice-story" class="story-response"></textarea>
+          <div class="plot-actions"><button id="practice-story-show" class="small-btn" type="button">Show model answer</button></div>
+          <div id="practice-story-model" class="meaning" hidden><strong>Model answer:</strong> The graph compares temperature with hot-chocolate sales. The intercept (0, 90) means the model predicts 90 cups sold per hour at 0°C. The line has a negative slope of −3, so each 1°C increase is linked to 3 fewer cups sold per hour. In this model, warmer weather is associated with lower hot-chocolate sales.</div>
+        </div>
+
+      </section>
+
+      <section class="lesson-step" data-title="Extra practice" hidden>
+        <div class="kicker">Step 12</div><h2>Extra practice</h2>
+        <p class="lead">Use tables, lines, triangles, and curves to practice reading the information shown by a graph.</p>
+
+        <div class="practice">
+          <h3>7. Plot a graph from a table</h3>
+          <p class="prompt">Plot all four rows. Each row becomes one point. The graph will connect your points in order.</p>
+          <div class="grid"><div class="table-wrap"><table><thead><tr><th>X</th><th>Y</th></tr></thead><tbody><tr><td>0</td><td>10</td></tr><tr><td>5</td><td>20</td></tr><tr><td>10</td><td>30</td></tr><tr><td>15</td><td>40</td></tr></tbody></table></div><div><canvas id="extra-plot" class="graph-canvas plot-canvas" width="620" height="470" role="img" aria-label="Clickable graph for plotting four points from a table">Click grid intersections to plot the four table values.</canvas><p class="units">Click a point again to remove it.</p></div></div>
+          <div class="plot-actions"><button id="extra-plot-clear" class="small-btn" type="button">Clear points</button><button id="extra-plot-check" class="primary-btn" type="button">Check graph</button></div>
+          <p id="extra-plot-feedback" class="feedback" aria-live="polite">0 of 4 points plotted.</p>
+        </div>
+
+        <div class="practice">
+          <h3>8. Complete a table from an equation</h3>
+          <p class="prompt">Use <span class="formula">H = 100 − 5T</span> to find hot-chocolate sales at each temperature.</p>
+          <div class="table-wrap"><table><thead><tr><th>Temperature T (°C)</th><th>Hot chocolates H per hour</th></tr></thead><tbody><tr><td>0</td><td><label for="extra-table-0" class="units">Enter H</label><input id="extra-table-0" type="number" inputmode="decimal"></td></tr><tr><td>10</td><td><label for="extra-table-10" class="units">Enter H</label><input id="extra-table-10" type="number" inputmode="decimal"></td></tr><tr><td>20</td><td><label for="extra-table-20" class="units">Enter H</label><input id="extra-table-20" type="number" inputmode="decimal"></td></tr></tbody></table></div>
+          <div class="plot-actions"><button id="extra-table-check" class="primary-btn" type="button">Check table</button></div>
+          <p id="extra-table-feedback" class="feedback" aria-live="polite"></p>
+        </div>
+
+        <div class="grid">
+          <div class="practice">
+            <h3>9. Calculate a positive slope</h3>
+            <p class="prompt">Use points A and B on the graph. Find ΔX, ΔY, and the slope.</p>
+            <canvas id="extra-slope-positive" class="graph-canvas" width="620" height="470" role="img" aria-label="Positive line through A 5 comma 20 and B 15 comma 50">The line passes through A(5, 20) and B(15, 50).</canvas>
+            <div class="answer-row"><div class="answer-field"><label for="extra-pos-dx">ΔX</label><input id="extra-pos-dx" type="number" inputmode="decimal"></div><div class="answer-field"><label for="extra-pos-dy">ΔY</label><input id="extra-pos-dy" type="number" inputmode="decimal"></div><div class="answer-field"><label for="extra-pos-slope">Slope</label><input id="extra-pos-slope" type="number" inputmode="decimal"></div></div>
+            <div class="plot-actions"><button id="extra-pos-slope-check" class="primary-btn" type="button">Check slope</button></div><p id="extra-pos-slope-feedback" class="feedback" aria-live="polite"></p>
+          </div>
+          <div class="practice">
+            <h3>10. Calculate a negative slope</h3>
+            <p class="prompt">Use points A and B on the graph. Find ΔX, ΔY, and the slope.</p>
+            <canvas id="extra-slope-negative" class="graph-canvas" width="620" height="470" role="img" aria-label="Negative line through A 5 comma 80 and B 20 comma 20">The line passes through A(5, 80) and B(20, 20).</canvas>
+            <div class="answer-row"><div class="answer-field"><label for="extra-neg-dx">ΔX</label><input id="extra-neg-dx" type="number" inputmode="decimal"></div><div class="answer-field"><label for="extra-neg-dy">ΔY</label><input id="extra-neg-dy" type="number" inputmode="decimal"></div><div class="answer-field"><label for="extra-neg-slope">Slope</label><input id="extra-neg-slope" type="number" inputmode="decimal"></div></div>
+            <div class="plot-actions"><button id="extra-neg-slope-check" class="primary-btn" type="button">Check slope</button></div><p id="extra-neg-slope-feedback" class="feedback" aria-live="polite"></p>
+          </div>
+        </div>
+
+        <div class="practice" data-quiz>
+          <h3>11. Interpret the intercepts</h3>
+          <p class="prompt">The graph shows temperature T and hot-chocolate sales H. What do its two intercepts mean?</p>
+          <canvas id="extra-intercept-graph" class="graph-canvas" width="760" height="520" role="img" aria-label="Hot-chocolate line with intercepts 0 comma 60 and 20 comma 0">The line crosses the axes at (0, 60) and (20, 0).</canvas>
+          <div class="choices"><button class="choice" data-correct="true">At 0°C, predicted sales are 60 cups per hour; at 20°C, predicted sales reach zero.</button><button class="choice">At 60°C, predicted sales are zero; at 0°C, predicted sales are 20.</button><button class="choice">Sales increase by 60 cups for every 20°C increase.</button></div><p class="feedback" aria-live="polite"></p>
+        </div>
+
+        <div class="grid">
+          <div class="practice" data-quiz><h3>12. Choose the slope’s units</h3><p class="prompt">The horizontal axis measures temperature in °C. The vertical axis measures cups sold per hour. What are the slope’s units?</p><div class="choices"><button class="choice">Degrees Celsius per cup</button><button class="choice" data-correct="true">Cups sold per hour for each 1°C change</button><button class="choice">Cups multiplied by degrees Celsius</button></div><p class="feedback" aria-live="polite"></p></div>
+          <div class="practice" data-quiz><h3>13. Find the slope error</h3><p class="prompt">A student uses (40 − 20) ÷ (5 − 15) and gets −2 for the line from A(5, 20) to B(15, 40). What went wrong?</p><div class="choices"><button class="choice">The y-values should be added.</button><button class="choice" data-correct="true">The changes use opposite directions. Both subtractions must follow the same point order.</button><button class="choice">Every positive line has slope +1.</button></div><p class="feedback" aria-live="polite"></p></div>
+        </div>
+
+        <div class="practice" data-quiz>
+          <h3>14. Determine the equation from a graph</h3>
+          <p class="prompt">Read the vertical intercept and calculate the slope from the two labeled points.</p>
+          <canvas id="extra-equation-graph" class="graph-canvas" width="760" height="520" role="img" aria-label="A numbered graph through 0 comma 20 and 10 comma 50">The graph has a vertical intercept of 20 and a slope of 3.</canvas>
+          <div class="choices"><button class="choice">Y = 20 − 3X</button><button class="choice" data-correct="true">Y = 20 + 3X</button><button class="choice">Y = 3 + 20X</button></div><p class="feedback" aria-live="polite"></p>
+        </div>
+
+        <div class="grid">
+          <div class="practice" data-quiz><h3>15. Read a concave curve</h3><p class="prompt">Which statement best describes this graph?</p><canvas id="extra-concave-graph" class="graph-canvas" width="620" height="470" role="img" aria-label="A positive concave curve that becomes flatter">The curve rises and becomes flatter.</canvas><div class="choices"><button class="choice" data-correct="true">The relationship is positive and concave, with diminishing increases.</button><button class="choice">The relationship is negative and convex.</button><button class="choice">The slope is constant everywhere.</button></div><p class="feedback" aria-live="polite"></p></div>
+          <div class="practice" data-quiz><h3>16. Read a convex curve</h3><p class="prompt">Which statement best describes this graph?</p><canvas id="extra-convex-graph" class="graph-canvas" width="620" height="470" role="img" aria-label="A negative convex curve that becomes flatter">The curve falls and becomes flatter.</canvas><div class="choices"><button class="choice">The relationship is positive and concave.</button><button class="choice" data-correct="true">The relationship is negative and convex, with diminishing decreases.</button><button class="choice">The slope is constant everywhere.</button></div><p class="feedback" aria-live="polite"></p></div>
+        </div>
+
+        <div class="complete" id="complete"><h3>Preparation complete</h3><p>You can now translate axes, scales, points, tables, intercepts, relationships, slopes, equations, areas, and curves into meaningful statements.</p></div>
+      </section>
+      <div class="step-controls"><button class="nav-btn prev" id="prev" type="button">← Previous</button><button class="nav-btn next" id="next" type="button">Next step →</button></div>
+    </article>
+  </div>
+  <footer>Khrystyna Somik · ECON 120 graph-skills preparation · Original examples and explanations</footer>
+</main>
+<script>
+(function(){
+  "use strict";
+  var COLORS={ink:"#1d3042",muted:"#5b6f80",brace:"#7b8d9a",grid:"#dce5ea",blue:"#1e6797",orange:"#bf6b17",teal:"#14766f",fillBlue:"rgba(30,103,151,.25)",fillOrange:"rgba(191,107,23,.25)"};
+  function plane(canvas,opt){
+    var ctx=canvas.getContext("2d"),w=canvas.width,h=canvas.height,m={l:opt.leftMargin||82,r:38,t:34,b:76},pw=w-m.l-m.r,ph=h-m.t-m.b;
+    var xMax=opt.xMax,yMax=opt.yMax,xStep=opt.xStep,yStep=opt.yStep;
+    function p(x,y){return{x:m.l+x/xMax*pw,y:m.t+ph-y/yMax*ph};}
+    ctx.clearRect(0,0,w,h);ctx.fillStyle="#fff";ctx.fillRect(0,0,w,h);
+    ctx.lineWidth=1;ctx.strokeStyle=COLORS.grid;
+    for(var x=0;x<=xMax+.0001;x+=xStep){var gx=p(x,0).x;ctx.beginPath();ctx.moveTo(gx,m.t);ctx.lineTo(gx,m.t+ph);ctx.stroke();}
+    for(var y=0;y<=yMax+.0001;y+=yStep){var gy=p(0,y).y;ctx.beginPath();ctx.moveTo(m.l,gy);ctx.lineTo(m.l+pw,gy);ctx.stroke();}
+    ctx.strokeStyle=COLORS.ink;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(m.l,m.t+ph);ctx.lineTo(m.l+pw,m.t+ph);ctx.stroke();ctx.beginPath();ctx.moveTo(m.l,m.t+ph);ctx.lineTo(m.l,m.t);ctx.stroke();
+    function arrow(x1,y1,x2,y2){var a=Math.atan2(y2-y1,x2-x1),len=11;ctx.beginPath();ctx.moveTo(x2,y2);ctx.lineTo(x2-len*Math.cos(a-.5),y2-len*Math.sin(a-.5));ctx.moveTo(x2,y2);ctx.lineTo(x2-len*Math.cos(a+.5),y2-len*Math.sin(a+.5));ctx.stroke();}
+    arrow(m.l+pw-16,m.t+ph,m.l+pw,m.t+ph);arrow(m.l,m.t+16,m.l,m.t);
+    ctx.fillStyle=COLORS.muted;ctx.font="14px system-ui";ctx.textAlign="center";ctx.textBaseline="top";
+    for(x=0;x<=xMax+.0001;x+=xStep){ctx.fillText(String(x),p(x,0).x,m.t+ph+9);}
+    ctx.textAlign="right";ctx.textBaseline="middle";
+    for(y=yStep;y<=yMax+.0001;y+=yStep){ctx.fillText(String(y),m.l-11,p(0,y).y);}
+    ctx.fillStyle=COLORS.ink;ctx.font="16px system-ui";ctx.textAlign="center";ctx.textBaseline="top";ctx.fillText(opt.xLabel,m.l+pw/2,h-31);
+    ctx.save();ctx.translate(24,m.t+ph/2);ctx.rotate(-Math.PI/2);ctx.textBaseline="top";ctx.fillText(opt.yLabel,0,0);ctx.restore();
+    return{ctx:ctx,p:p,m:m,pw:pw,ph:ph,opt:opt};
+  }
+  function line(g,a,b,color,width){var p1=g.p(a[0],a[1]),p2=g.p(b[0],b[1]);g.ctx.strokeStyle=color;g.ctx.lineWidth=width||4;g.ctx.beginPath();g.ctx.moveTo(p1.x,p1.y);g.ctx.lineTo(p2.x,p2.y);g.ctx.stroke();}
+  function strongEdge(g,a,b,color){line(g,a,b,"rgba(255,255,255,.96)",9);line(g,a,b,color,5);}
+  function trendLine(g,a,b,color){line(g,a,b,color,4);var p1=g.p(a[0],a[1]),p2=g.p(b[0],b[1]),sx=p1.x+(p2.x-p1.x)*.68,sy=p1.y+(p2.y-p1.y)*.68,ex=p1.x+(p2.x-p1.x)*.82,ey=p1.y+(p2.y-p1.y)*.82,angle=Math.atan2(ey-sy,ex-sx),len=13;g.ctx.strokeStyle=color;g.ctx.lineWidth=4;g.ctx.beginPath();g.ctx.moveTo(sx,sy);g.ctx.lineTo(ex,ey);g.ctx.lineTo(ex-len*Math.cos(angle-.55),ey-len*Math.sin(angle-.55));g.ctx.moveTo(ex,ey);g.ctx.lineTo(ex-len*Math.cos(angle+.55),ey-len*Math.sin(angle+.55));g.ctx.stroke();}
+  function callout(g,text,x,y,position){var q=g.p(x,y),ctx=g.ctx;ctx.font="14px system-ui";var pad=6,bw=Math.ceil(ctx.measureText(text).width)+pad*2,bh=26,bx,by,pos=position||"auto";if(pos==="auto"){if(y>g.opt.yMax*.82)pos="bottom";else if(y<g.opt.yMax*.16)pos="top";else if(x<g.opt.xMax*.18)pos="right";else if(x>g.opt.xMax*.82)pos="left";else pos="top";}if(pos==="bottom"){bx=q.x-bw/2;by=q.y+15;}else if(pos==="left"){bx=q.x-bw-16;by=q.y-bh/2;}else if(pos==="right"){bx=q.x+16;by=q.y-bh/2;}else{bx=q.x-bw/2;by=q.y-bh-15;}bx=Math.max(g.m.l+5,Math.min(g.m.l+g.pw-bw-5,bx));by=Math.max(g.m.t+5,Math.min(g.m.t+g.ph-bh-5,by));ctx.strokeStyle="#7c909e";ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(q.x,q.y);ctx.lineTo(Math.max(bx,Math.min(bx+bw,q.x)),Math.max(by,Math.min(by+bh,q.y)));ctx.stroke();ctx.fillStyle="rgba(255,255,255,.96)";ctx.fillRect(bx,by,bw,bh);ctx.strokeStyle="#9aacb7";ctx.strokeRect(bx+.5,by+.5,bw-1,bh-1);ctx.fillStyle=COLORS.ink;ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(text,bx+bw/2,by+bh/2);}
+  function dot(g,x,y,color,label,position){var q=g.p(x,y);g.ctx.beginPath();g.ctx.arc(q.x,q.y,7,0,Math.PI*2);g.ctx.fillStyle=color;g.ctx.fill();g.ctx.strokeStyle="#fff";g.ctx.lineWidth=2;g.ctx.stroke();if(label)callout(g,label,x,y,position);}
+  function polygon(g,pts,fill,stroke){g.ctx.beginPath();pts.forEach(function(v,i){var q=g.p(v[0],v[1]);if(i===0)g.ctx.moveTo(q.x,q.y);else g.ctx.lineTo(q.x,q.y);});g.ctx.closePath();g.ctx.fillStyle=fill;g.ctx.fill();g.ctx.strokeStyle=stroke;g.ctx.lineWidth=2;g.ctx.stroke();}
+  function guide(g,a,b,color){var p1=g.p(a[0],a[1]),p2=g.p(b[0],b[1]);g.ctx.save();g.ctx.setLineDash([6,5]);g.ctx.strokeStyle=color;g.ctx.lineWidth=1.5;g.ctx.beginPath();g.ctx.moveTo(p1.x,p1.y);g.ctx.lineTo(p2.x,p2.y);g.ctx.stroke();g.ctx.restore();}
+  function dotted(g,a,b,color){var p1=g.p(a[0],a[1]),p2=g.p(b[0],b[1]);g.ctx.save();g.ctx.setLineDash([2,7]);g.ctx.strokeStyle=color;g.ctx.lineWidth=2;g.ctx.beginPath();g.ctx.moveTo(p1.x,p1.y);g.ctx.lineTo(p2.x,p2.y);g.ctx.stroke();g.ctx.restore();}
+  function bracketH(g,x1,x2,y,dir,color){var a=g.p(x1,y),b=g.p(x2,y),ctx=g.ctx,d=dir||1,mid=(a.x+b.x)/2;function trace(){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(a.x,a.y+d*8);ctx.lineTo(mid-7,a.y+d*8);ctx.quadraticCurveTo(mid,a.y+d*8,mid,a.y+d*15);ctx.quadraticCurveTo(mid,a.y+d*8,mid+7,a.y+d*8);ctx.lineTo(b.x,a.y+d*8);ctx.lineTo(b.x,b.y);ctx.stroke();}ctx.strokeStyle="rgba(255,255,255,.96)";ctx.lineWidth=7;trace();ctx.strokeStyle=color;ctx.lineWidth=3;trace();}
+  function bracketV(g,x,y1,y2,dir,color){var a=g.p(x,y1),b=g.p(x,y2),ctx=g.ctx,d=dir||1,mid=(a.y+b.y)/2;function trace(){ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(a.x+d*8,a.y);ctx.lineTo(a.x+d*8,mid-7);ctx.quadraticCurveTo(a.x+d*8,mid,a.x+d*15,mid);ctx.quadraticCurveTo(a.x+d*8,mid,a.x+d*8,mid+7);ctx.lineTo(a.x+d*8,b.y);ctx.lineTo(b.x,b.y);ctx.stroke();}ctx.strokeStyle="rgba(255,255,255,.96)";ctx.lineWidth=7;trace();ctx.strokeStyle=color;ctx.lineWidth=3;trace();}
+  function label(g,text,x,y,color){var q=g.p(x,y),ctx=g.ctx;ctx.font="14px system-ui";var pad=5,w=Math.ceil(ctx.measureText(text).width)+pad*2,h=24,bx=Math.max(g.m.l+4,Math.min(g.m.l+g.pw-w-4,q.x-w/2)),by=Math.max(g.m.t+4,Math.min(g.m.t+g.ph-h-4,q.y-h/2));ctx.fillStyle="rgba(255,255,255,.94)";ctx.fillRect(bx,by,w,h);ctx.strokeStyle="#a5b5bf";ctx.lineWidth=1;ctx.strokeRect(bx+.5,by+.5,w-1,h-1);ctx.fillStyle=color||COLORS.ink;ctx.textAlign="center";ctx.textBaseline="middle";ctx.fillText(text,bx+w/2,by+h/2);}
+  var iceAxes={xMax:30,yMax:70,xStep:5,yStep:10,xLabel:"Temperature (°C)",yLabel:"Ice creams sold per hour"};
+  var chocAxes={xMax:30,yMax:120,xStep:5,yStep:20,xLabel:"Temperature (°C)",yLabel:"Cups sold per hour"};
+  plane(document.getElementById("axes-graph"),iceAxes);
+  var pointTemp=document.getElementById("point-temp"),pointSales=document.getElementById("point-sales");
+  function drawPoint(){var x=Number(pointTemp.value),y=Number(pointSales.value),g=plane(document.getElementById("point-graph"),iceAxes);guide(g,[x,0],[x,y],COLORS.muted);guide(g,[0,y],[x,y],COLORS.muted);dot(g,x,y,COLORS.teal,"("+x+", "+y+")");document.getElementById("point-temp-out").textContent=x;document.getElementById("point-sales-out").textContent=y;document.getElementById("point-readout").textContent="Point ("+x+", "+y+")";}
+  pointTemp.addEventListener("input",drawPoint);pointSales.addEventListener("input",drawPoint);drawPoint();
+  var expected=[[0,10],[5,20],[10,30],[15,40],[20,50],[25,60]],plotted=[],plotCanvas=document.getElementById("plot-graph");
+  function drawPlot(){var g=plane(plotCanvas,iceAxes);if(plotted.length>1){var ordered=plotted.slice().sort(function(a,b){return a[0]-b[0];});for(var i=1;i<ordered.length;i++)line(g,ordered[i-1],ordered[i],COLORS.blue,3);}plotted.forEach(function(v){dot(g,v[0],v[1],COLORS.blue);});document.getElementById("plot-status").textContent=plotted.length+" of 6 points plotted.";}
+  function canvasPos(canvas,e){var r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)*canvas.width/r.width,y:(e.clientY-r.top)*canvas.height/r.height};}
+  plotCanvas.addEventListener("click",function(e){var q=canvasPos(plotCanvas,e),m={l:82,r:38,t:34,b:76},pw=plotCanvas.width-m.l-m.r,ph=plotCanvas.height-m.t-m.b;if(q.x<m.l||q.x>m.l+pw||q.y<m.t||q.y>m.t+ph)return;var x=Math.round(((q.x-m.l)/pw*30)/5)*5,y=Math.round(((m.t+ph-q.y)/ph*70)/10)*10;x=Math.max(0,Math.min(30,x));y=Math.max(0,Math.min(70,y));var idx=plotted.findIndex(function(v){return v[0]===x&&v[1]===y;});if(idx>=0)plotted.splice(idx,1);else plotted.push([x,y]);drawPlot();});
+  document.getElementById("plot-undo").addEventListener("click",function(){plotted.pop();drawPlot();});document.getElementById("plot-clear").addEventListener("click",function(){plotted=[];drawPlot();});
+  document.getElementById("plot-check").addEventListener("click",function(){var correct=expected.filter(function(a){return plotted.some(function(b){return a[0]===b[0]&&a[1]===b[1];});}).length,exact=correct===expected.length&&plotted.length===expected.length,status=document.getElementById("plot-status");status.className="feedback "+(exact?"good":"try");status.textContent=exact?"All six points are correct. The connected points reveal an upward-sloping relationship.":correct+" of 6 required points are correct. Use the first column for x and the second for y.";});drawPlot();
+  function drawIce(canvas,pointValue){var g=plane(canvas,iceAxes);trendLine(g,[0,10],[30,70],COLORS.blue);dot(g,0,10,COLORS.blue,"(0, 10)","right");if(pointValue!==undefined)dot(g,pointValue,10+2*pointValue,COLORS.teal,"("+pointValue+", "+(10+2*pointValue)+")","top");return g;}
+  function drawChoc(canvas,pointValue){var g=plane(canvas,chocAxes);trendLine(g,[0,120],[30,0],COLORS.orange);dot(g,0,120,COLORS.orange,"(0, 120)","bottom");dot(g,30,0,COLORS.orange,"(30, 0)","left");if(pointValue!==undefined)dot(g,pointValue,120-4*pointValue,COLORS.teal,"("+pointValue+", "+(120-4*pointValue)+")","top");return g;}
+  drawIce(document.getElementById("intercept-ice"));drawChoc(document.getElementById("intercept-choc"));
+  var compareTemp=document.getElementById("compare-temp");
+  function drawRelations(){var t=Number(compareTemp.value);drawIce(document.getElementById("relation-ice"),t);drawChoc(document.getElementById("relation-choc"),t);document.getElementById("compare-temp-out").textContent=t;document.getElementById("compare-readout").textContent="Ice cream: "+(10+2*t)+"/hour · Hot chocolate: "+(120-4*t)+"/hour";}
+  compareTemp.addEventListener("input",drawRelations);drawRelations();
+  function drawSlopePanel(id,type,a,b,names){var isIce=type==="ice",g=plane(document.getElementById(id),isIce?iceAxes:chocAxes),color=isIce?COLORS.blue:COLORS.orange,fill=isIce?COLORS.fillBlue:COLORS.fillOrange;trendLine(g,isIce?[0,10]:[0,120],isIce?[30,70]:[30,0],color);polygon(g,[a,[b[0],a[1]],b],fill,color);dot(g,a[0],a[1],color,names[0]+" ("+a[0]+", "+a[1]+")",isIce?"left":"top");dot(g,b[0],b[1],color,names[1]+" ("+b[0]+", "+b[1]+")",isIce?"top":"bottom");label(g,"ΔT = "+(b[0]-a[0]),(a[0]+b[0])/2,a[1]-(isIce?4:-7),color);label(g,"Δ"+(isIce?"I":"H")+" = "+(b[1]-a[1]),b[0]-(isIce?2:-2),(a[1]+b[1])/2,color);}
+  drawSlopePanel("slope-ice-1","ice",[5,20],[15,40],["A","B"]);
+  drawSlopePanel("slope-ice-2","ice",[15,40],[25,60],["C","D"]);
+  drawSlopePanel("slope-choc-1","choc",[5,100],[15,60],["A","B"]);
+  drawSlopePanel("slope-choc-2","choc",[15,60],[25,20],["C","D"]);
+  var iceB=document.getElementById("ice-b"),iceM=document.getElementById("ice-m"),chocB=document.getElementById("choc-b"),chocM=document.getElementById("choc-m");
+  function drawEquations(){var b=Number(iceB.value),m=Number(iceM.value),g=plane(document.getElementById("equation-ice"),{xMax:30,yMax:120,xStep:5,yStep:20,xLabel:"Temperature (°C)",yLabel:"Ice creams sold per hour"}),iceY=b+m*10;trendLine(g,[0,b],[30,b+m*30],COLORS.blue);dot(g,0,b,COLORS.blue,"(0, "+b+")","right");dot(g,10,iceY,COLORS.teal,"(10, "+iceY+")","top");document.getElementById("ice-b-out").textContent=b;document.getElementById("ice-m-out").textContent=m;document.getElementById("ice-equation").textContent="I = "+b+" + "+m+"T";document.getElementById("ice-equation-meaning").textContent="At 0°C, predicted sales are "+b+" per hour. Each additional 1°C adds "+m+" sales per hour.";
+    b=Number(chocB.value);m=Number(chocM.value);g=plane(document.getElementById("equation-choc"),{xMax:30,yMax:140,xStep:5,yStep:20,xLabel:"Temperature (°C)",yLabel:"Cups sold per hour"});var endX=Math.min(30,b/m),chocY=b-m*10;trendLine(g,[0,b],[endX,Math.max(0,b-m*endX)],COLORS.orange);dot(g,0,b,COLORS.orange,"(0, "+b+")","bottom");if(chocY>=0)dot(g,10,chocY,COLORS.teal,"(10, "+chocY+")","top");if(endX<=30)dot(g,endX,0,COLORS.orange,"("+Number(endX.toFixed(1))+", 0)","left");document.getElementById("choc-b-out").textContent=b;document.getElementById("choc-m-out").textContent=m;document.getElementById("choc-equation").textContent="H = "+b+" − "+m+"T";document.getElementById("choc-equation-meaning").textContent="At 0°C, predicted sales are "+b+" per hour. Each additional 1°C subtracts "+m+" sales per hour.";}
+  [iceB,iceM,chocB,chocM].forEach(function(e){e.addEventListener("input",drawEquations);});drawEquations();
+  var whole=drawIce(document.getElementById("whole-ice"),20);label(whole,"I = 10 + 2T",18,64,COLORS.blue);whole=drawChoc(document.getElementById("whole-choc"),20);label(whole,"H = 120 − 4T",15,92,COLORS.orange);
+  var ag=plane(document.getElementById("area-below"),{xMax:6,yMax:14,xStep:1,yStep:2,xLabel:"x",yLabel:"y",leftMargin:110});polygon(ag,[[0,12],[0,5],[4,5]],COLORS.fillBlue,COLORS.blue);dotted(ag,[4,0],[4,5],COLORS.ink);line(ag,[4,5],[6,1.5],COLORS.blue);strongEdge(ag,[0,12],[4,5],COLORS.blue);strongEdge(ag,[0,5],[0,12],COLORS.blue);strongEdge(ag,[0,5],[4,5],COLORS.blue);dot(ag,4,5,COLORS.ink);bracketV(ag,-.35,5,12,-1,COLORS.brace);bracketH(ag,0,4,4.82,1,COLORS.brace);label(ag,"height: 12 − 5 = 7",1.05,9.2);label(ag,"base: 4 − 0 = 4",2.1,3.75);label(ag,"Area = ½ × 4 × 7 = 14",2.35,7.2,COLORS.blue);
+  ag=plane(document.getElementById("area-above"),{xMax:6,yMax:14,xStep:1,yStep:2,xLabel:"x",yLabel:"y",leftMargin:110});polygon(ag,[[0,3],[0,11],[5,11]],COLORS.fillOrange,COLORS.orange);dotted(ag,[5,0],[5,11],COLORS.ink);line(ag,[5,11],[5.5,11.8],COLORS.orange);strongEdge(ag,[0,3],[5,11],COLORS.orange);strongEdge(ag,[0,3],[0,11],COLORS.orange);strongEdge(ag,[0,11],[5,11],COLORS.orange);dot(ag,5,11,COLORS.ink);bracketV(ag,-.35,3,11,-1,COLORS.brace);bracketH(ag,0,5,11.18,-1,COLORS.brace);label(ag,"height: 11 − 3 = 8",1.05,7);label(ag,"base: 5 − 0 = 5",2.6,12.15);label(ag,"Area = ½ × 5 × 8 = 20",2.65,8.6,COLORS.orange);
+  function curveGraph(canvas,type,xs){var g=plane(canvas,{xMax:5,yMax:10,xStep:1,yStep:2,xLabel:"Temperature (equal steps)",yLabel:type==="up"?"Ice-cream sales":"Hot-chocolate sales"}),ctx=g.ctx,pts=[];for(var i=0;i<=100;i++){var x=5*i/100,y=type==="up"?10*(1-Math.exp(-.7*x)):10*Math.exp(-.7*x);pts.push([x,y]);}var color=type==="up"?COLORS.blue:COLORS.orange;ctx.strokeStyle=color;ctx.lineWidth=4;ctx.beginPath();pts.forEach(function(v,i){var q=g.p(v[0],v[1]);if(i===0)ctx.moveTo(q.x,q.y);else ctx.lineTo(q.x,q.y);});ctx.stroke();var ys=type==="up"?10*(1-Math.exp(-.7*xs)):10*Math.exp(-.7*xs),slope=type==="up"?7*Math.exp(-.7*xs):-7*Math.exp(-.7*xs),dx=.65,dy=slope*dx;line(g,[xs-dx,ys-dy],[xs+dx,ys+dy],COLORS.teal,3);dot(g,xs,ys,COLORS.teal,"slope ≈ "+(slope>0?"+":"")+slope.toFixed(1),type==="up"?"bottom":"top");}
+  curveGraph(document.getElementById("curve-ice-early"),"up",1);
+  curveGraph(document.getElementById("curve-ice-late"),"up",4);
+  curveGraph(document.getElementById("curve-choc-early"),"down",1);
+  curveGraph(document.getElementById("curve-choc-late"),"down",4);
+  var practiceB=document.getElementById("practice-b"),practiceM=document.getElementById("practice-m");
+  function drawPracticeLine(){var b=Number(practiceB.value),m=Number(practiceM.value),g=plane(document.getElementById("practice-line"),{xMax:20,yMax:120,xStep:5,yStep:20,xLabel:"X",yLabel:"Y"});guide(g,[0,10],[20,50],COLORS.muted);line(g,[0,b],[20,b+m*20],COLORS.teal,4);dot(g,0,b,COLORS.teal,"intercept (0, "+b+")","right");label(g,"dotted target",15,55,COLORS.muted);document.getElementById("practice-b-out").textContent=b;document.getElementById("practice-m-out").textContent=m;document.getElementById("practice-equation").textContent="Your line: Y = "+b+" + "+m+"X";}
+  practiceB.addEventListener("input",drawPracticeLine);practiceM.addEventListener("input",drawPracticeLine);drawPracticeLine();
+  function practiceFeedback(id,ok,good,bad){var f=document.getElementById(id);f.className="feedback "+(ok?"good":"try");f.textContent=ok?good:bad;}
+  document.getElementById("practice-line-check").addEventListener("click",function(){var b=Number(practiceB.value),m=Number(practiceM.value),ok=b===10&&m===2;practiceFeedback("practice-line-feedback",ok,"Correct. The intercept is 10 and the slope is 2.","Not yet. Match where the target crosses the vertical axis first, then match its steepness.");});
+  document.getElementById("practice-slope-check").addEventListener("click",function(){var dx=Number(document.getElementById("practice-dx").value),dy=Number(document.getElementById("practice-dy").value),m=Number(document.getElementById("practice-slope").value),ok=dx===6&&dy===24&&m===4;practiceFeedback("practice-slope-feedback",ok,"Correct: Δx = 6, Δy = 24, and slope = 24 ÷ 6 = 4.","Try again: Δx = 10 − 4, Δy = 42 − 18, and slope = Δy ÷ Δx.");});
+  var practiceAreaGraph=plane(document.getElementById("practice-area-graph"),{xMax:8,yMax:10,xStep:1,yStep:1,xLabel:"X",yLabel:"Y"});polygon(practiceAreaGraph,[[1,1],[7,1],[1,9]],COLORS.fillBlue,COLORS.blue);strongEdge(practiceAreaGraph,[1,1],[7,1],COLORS.blue);strongEdge(practiceAreaGraph,[1,1],[1,9],COLORS.blue);strongEdge(practiceAreaGraph,[1,9],[7,1],COLORS.blue);dot(practiceAreaGraph,1,1,COLORS.ink,"(1, 1)","right");dot(practiceAreaGraph,7,1,COLORS.ink,"(7, 1)","top");dot(practiceAreaGraph,1,9,COLORS.ink,"(1, 9)","right");
+  document.getElementById("practice-area-check").addEventListener("click",function(){var baseField=document.getElementById("practice-area-base"),heightField=document.getElementById("practice-area-height"),areaField=document.getElementById("practice-area"),ok=baseField.value!==""&&heightField.value!==""&&areaField.value!==""&&Number(baseField.value)===6&&Number(heightField.value)===8&&Number(areaField.value)===24;practiceFeedback("practice-area-feedback",ok,"Correct: base = 7 − 1 = 6, height = 9 − 1 = 8, and area = ½ × 6 × 8 = 24.","Try again. Subtract the x-coordinates for the base and the y-coordinates for the height, then use ½ × base × height.");});
+  document.getElementById("practice-story-show").addEventListener("click",function(){var model=document.getElementById("practice-story-model"),show=model.hidden;model.hidden=!show;this.textContent=show?"Hide model answer":"Show model answer";});
+  var extraPlotCanvas=document.getElementById("extra-plot"),extraExpected=[[0,10],[5,20],[10,30],[15,40]],extraPoints=[];
+  function drawExtraPlot(){var g=plane(extraPlotCanvas,{xMax:20,yMax:50,xStep:5,yStep:10,xLabel:"X",yLabel:"Y"}),ordered=extraPoints.slice().sort(function(a,b){return a[0]-b[0];});for(var i=1;i<ordered.length;i++)line(g,ordered[i-1],ordered[i],COLORS.teal,3);ordered.forEach(function(v){dot(g,v[0],v[1],COLORS.teal,"("+v[0]+", "+v[1]+")","top");});}
+  extraPlotCanvas.addEventListener("click",function(e){var q=canvasPos(extraPlotCanvas,e),m={l:82,r:38,t:34,b:76},pw=extraPlotCanvas.width-m.l-m.r,ph=extraPlotCanvas.height-m.t-m.b;if(q.x<m.l||q.x>m.l+pw||q.y<m.t||q.y>m.t+ph)return;var x=Math.round(((q.x-m.l)/pw*20)/5)*5,y=Math.round(((m.t+ph-q.y)/ph*50)/10)*10;x=Math.max(0,Math.min(20,x));y=Math.max(0,Math.min(50,y));var idx=extraPoints.findIndex(function(v){return v[0]===x&&v[1]===y;});if(idx>=0)extraPoints.splice(idx,1);else extraPoints.push([x,y]);drawExtraPlot();document.getElementById("extra-plot-feedback").className="feedback";document.getElementById("extra-plot-feedback").textContent=extraPoints.length+" of 4 points plotted.";});
+  document.getElementById("extra-plot-clear").addEventListener("click",function(){extraPoints=[];drawExtraPlot();document.getElementById("extra-plot-feedback").className="feedback";document.getElementById("extra-plot-feedback").textContent="0 of 4 points plotted.";});
+  document.getElementById("extra-plot-check").addEventListener("click",function(){var correct=extraExpected.filter(function(a){return extraPoints.some(function(b){return a[0]===b[0]&&a[1]===b[1];});}).length,ok=correct===4&&extraPoints.length===4;practiceFeedback("extra-plot-feedback",ok,"Correct. All four rows are plotted and connected.",correct+" of 4 required points are correct. Use X from the first column and Y from the second.");});
+  document.getElementById("extra-table-check").addEventListener("click",function(){var aField=document.getElementById("extra-table-0"),bField=document.getElementById("extra-table-10"),cField=document.getElementById("extra-table-20"),ok=aField.value!==""&&bField.value!==""&&cField.value!==""&&Number(aField.value)===100&&Number(bField.value)===50&&Number(cField.value)===0;practiceFeedback("extra-table-feedback",ok,"Correct: the completed H-values are 100, 50, and 0.","Try again. Substitute each T-value into H = 100 − 5T.");});
+  function filledNumber(id){var e=document.getElementById(id);return e.value===""?null:Number(e.value);}
+  function practiceSlopeGraph(id,a,b,color){var g=plane(document.getElementById(id),{xMax:25,yMax:100,xStep:5,yStep:20,xLabel:"X",yLabel:"Y"});if(b[1]>a[1])trendLine(g,[0,5],[25,80],color);else trendLine(g,[0,100],[25,0],color);dot(g,a[0],a[1],color,"A ("+a[0]+", "+a[1]+")","top");dot(g,b[0],b[1],color,"B ("+b[0]+", "+b[1]+")","top");return g;}
+  practiceSlopeGraph("extra-slope-positive",[5,20],[15,50],COLORS.blue);practiceSlopeGraph("extra-slope-negative",[5,80],[20,20],COLORS.orange);
+  document.getElementById("extra-pos-slope-check").addEventListener("click",function(){var dx=filledNumber("extra-pos-dx"),dy=filledNumber("extra-pos-dy"),slope=filledNumber("extra-pos-slope"),ok=dx===10&&dy===30&&slope===3;practiceFeedback("extra-pos-slope-feedback",ok,"Correct: ΔX = 10, ΔY = 30, and slope = 3.","Try again: ΔX = 15 − 5, ΔY = 50 − 20, and slope = ΔY ÷ ΔX.");});
+  document.getElementById("extra-neg-slope-check").addEventListener("click",function(){var dx=filledNumber("extra-neg-dx"),dy=filledNumber("extra-neg-dy"),slope=filledNumber("extra-neg-slope"),ok=dx===15&&dy===-60&&slope===-4;practiceFeedback("extra-neg-slope-feedback",ok,"Correct: ΔX = 15, ΔY = −60, and slope = −4.","Try again: ΔX = 20 − 5, ΔY = 20 − 80, and slope = ΔY ÷ ΔX.");});
+  var interceptPractice=plane(document.getElementById("extra-intercept-graph"),{xMax:25,yMax:80,xStep:5,yStep:20,xLabel:"Temperature T (°C)",yLabel:"Hot chocolates H per hour"});trendLine(interceptPractice,[0,60],[20,0],COLORS.orange);dot(interceptPractice,0,60,COLORS.orange,"(0, 60)","right");dot(interceptPractice,20,0,COLORS.orange,"(20, 0)","left");
+  var extraEquation=plane(document.getElementById("extra-equation-graph"),{xMax:20,yMax:100,xStep:5,yStep:20,xLabel:"X",yLabel:"Y"});trendLine(extraEquation,[0,20],[20,80],COLORS.blue);dot(extraEquation,0,20,COLORS.blue,"(0, 20)","right");dot(extraEquation,10,50,COLORS.teal,"(10, 50)","top");
+  function practiceCurve(id,type){var g=plane(document.getElementById(id),{xMax:5,yMax:10,xStep:1,yStep:2,xLabel:"X",yLabel:"Y"}),ctx=g.ctx,pts=[];for(var i=0;i<=100;i++){var x=5*i/100,y=type==="concave"?10*(1-Math.exp(-.7*x)):10*Math.exp(-.7*x);pts.push([x,y]);}ctx.strokeStyle=type==="concave"?COLORS.blue:COLORS.orange;ctx.lineWidth=4;ctx.beginPath();pts.forEach(function(v,i){var q=g.p(v[0],v[1]);if(i===0)ctx.moveTo(q.x,q.y);else ctx.lineTo(q.x,q.y);});ctx.stroke();}
+  practiceCurve("extra-concave-graph","concave");practiceCurve("extra-convex-graph","convex");
+  drawExtraPlot();
+  var steps=Array.from(document.querySelectorAll(".lesson-step")),tabs=document.getElementById("step-tabs"),current=0;
+  steps.forEach(function(step,i){var b=document.createElement("button");b.className="step-tab";b.type="button";b.innerHTML='<span class="step-num">'+(i+1)+'</span><span class="tab-title">'+step.dataset.title+"</span>";b.addEventListener("click",function(){show(i);});tabs.appendChild(b);});
+  var tabButtons=Array.from(tabs.children),prev=document.getElementById("prev"),next=document.getElementById("next");
+  function show(i){current=Math.max(0,Math.min(steps.length-1,i));steps.forEach(function(step,n){step.hidden=n!==current;});tabButtons.forEach(function(b,n){if(n===current)b.setAttribute("aria-current","step");else b.removeAttribute("aria-current");});document.getElementById("progress-name").textContent=(current+1)+". "+steps[current].dataset.title;document.getElementById("progress-count").textContent="Step "+(current+1)+" of "+steps.length;document.getElementById("progress-bar").style.width=((current+1)/steps.length*100)+"%";prev.disabled=current===0;next.disabled=false;next.textContent=current===steps.length-1?"Finish ✓":"Next step →";next.classList.toggle("finish",current===steps.length-1);window.scrollTo({top:document.querySelector(".progress-wrap").offsetTop-6,behavior:"smooth"});}
+  prev.addEventListener("click",function(){show(current-1);});next.addEventListener("click",function(){if(current===steps.length-1){document.getElementById("complete").classList.add("show");next.disabled=true;}else show(current+1);});
+  document.querySelectorAll("[data-quiz]").forEach(function(quiz){quiz.querySelectorAll(".choice").forEach(function(b){b.addEventListener("click",function(){quiz.querySelectorAll(".choice").forEach(function(x){x.classList.remove("correct","incorrect");});var ok=b.hasAttribute("data-correct");b.classList.add(ok?"correct":"incorrect");var f=quiz.querySelector(".feedback");f.className="feedback "+(ok?"good":"try");f.textContent=ok?"Yes. That interpretation uses the graph correctly.":"Not quite. Recheck the scale, axis order, and units.";});});});
+  show(0);
+})();
+</script>
+</body>
+</html>
