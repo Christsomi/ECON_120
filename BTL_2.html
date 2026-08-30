@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Opportunity Cost, Advantage & Growth Practice</title>
+<style>
+  :root { font-family: Arial, Helvetica, sans-serif; color:#1f2937; background:#f6f7f9; }
+  * { box-sizing:border-box; }
+  body { margin:0; padding:24px; }
+  .app { max-width:1150px; margin:0 auto; background:white; border:1px solid #d8dde6; border-radius:14px; padding:24px; box-shadow:0 8px 24px rgba(0,0,0,.07); }
+  h1 { margin:0 0 8px; font-size:1.6rem; }
+  h2 { font-size:1.15rem; margin:0 0 10px; }
+  h3 { font-size:1rem; }
+  .instructions { margin:0 0 18px; line-height:1.5; }
+  .meta { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:20px; align-items:center; }
+  .badge { padding:8px 12px; border:1px solid #cfd6df; border-radius:999px; background:#f8fafc; font-size:.92rem; }
+  .badge input { border:none; background:transparent; font-size:.92rem; font-family:inherit; width:150px; }
+  .layout { display:grid; grid-template-columns:minmax(300px,380px) minmax(460px,1fr); gap:24px; align-items:start; }
+  table { width:100%; border-collapse:collapse; margin-bottom:10px; }
+  th,td { border:1px solid #cfd6df; padding:9px; text-align:center; }
+  th { background:#eef2f7; }
+  .panel { border:1px solid #d8dde6; border-radius:12px; padding:16px; background:#fcfcfd; margin-bottom:20px; }
+  canvas { width:100%; max-width:620px; aspect-ratio:1.2/1; display:block; border:1px solid #aeb7c4; background:white; }
+  #graph { cursor:crosshair; touch-action:none; }
+  .growthPlotCanvas { cursor:grab; touch-action:none; }
+  .growthPlotCanvas { aspect-ratio:auto !important; max-width:none !important; }
+  .controls { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; align-items:center; }
+  button { border:1px solid #8e99a8; background:#fff; color:#1f2937; border-radius:8px; padding:9px 14px; font-weight:600; cursor:pointer; font-size:.92rem; }
+  button:hover { background:#f1f5f9; }
+  button.primary { background:#1f4f8a; color:white; border-color:#1f4f8a; }
+  button.primary:hover { background:#183f70; }
+  button.toggle.active { background:#1f4f8a; color:#fff; border-color:#1f4f8a; }
+  button:disabled { opacity:.5; cursor:not-allowed; }
+  .status { min-height:54px; margin-top:14px; padding:12px; border-radius:8px; background:#eef2f7; line-height:1.45; }
+  .status.success { background:#e8f6ec; border:1px solid #7dbb8a; }
+  .status.error { background:#fff1f0; border:1px solid #d98a84; }
+  .small,.legend { color:#596273; font-size:.87rem; line-height:1.4; }
+  .legend { margin-top:8px; }
+  .question { border:1px solid #d8dde6; border-radius:10px; padding:12px 14px; margin-bottom:12px; background:#fff; transition:background .15s,border-color .15s; }
+  .question p { margin:0 0 8px; font-weight:600; font-size:.95rem; }
+  .question input[type=number] { width:110px; padding:6px 8px; border:1px solid #aeb7c4; border-radius:6px; font-size:.95rem; }
+  .equation-row { display:flex; flex-wrap:wrap; align-items:center; gap:6px; font-size:.95rem; }
+  .equation-row .eq-input { width:64px; padding:6px 6px; border:1px solid #aeb7c4; border-radius:6px; font-size:.95rem; text-align:center; }
+  .equation-row .eq-label { color:#384151; font-weight:600; font-size:.88rem; }
+  .equation-row .eq-op { color:#596273; font-weight:700; }
+  .app-footer { text-align:center; color:#8a93a3; font-size:.85rem; margin-top:20px; padding-top:14px; border-top:1px solid #d8dde6; }
+  .question .unit { margin-left:8px; color:#596273; font-size:.88rem; }
+  .options label { display:inline-flex; align-items:center; gap:5px; margin-right:18px; font-weight:400; font-size:.92rem; cursor:pointer; }
+  .q-correct { background:#e8f6ec; border-color:#7dbb8a; }
+  .q-incorrect { background:#fff1f0; border-color:#d98a84; }
+  .score-breakdown { display:flex; gap:14px; flex-wrap:wrap; margin-top:10px; font-size:.88rem; color:#384151; }
+  .score-breakdown .item { background:#eef2f7; border-radius:8px; padding:6px 10px; }
+  #resultPreview { max-width:280px; border:1px solid #d8dde6; border-radius:10px; margin-top:10px; display:none; }
+  .narrative-box { background:#eef2f7; border:1px solid #cfd6df; border-radius:10px; padding:12px 14px; margin-bottom:10px; font-size:.95rem; line-height:1.5; }
+  @media (max-width:900px) { body{padding:10px} .app{padding:16px} .layout{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<main class="app">
+  <h1>Opportunity Cost, Advantage & Growth Practice</h1>
+  <p class="instructions">Two countries can each produce two goods. Use their production data to plot each country's production possibilities frontier (PPF), then answer questions about opportunity cost, absolute advantage, comparative advantage, and specialization. At the end, you'll see two separate examples of events that change production, where you plot the new PPF yourself. When you're done, select <strong>Check Answers</strong>, then download your result image to submit.</p>
+
+  <div class="meta">
+    <div class="badge"><strong>Activity code:</strong> <span id="activityId"></span></div>
+    <div class="badge"><strong>Attempt:</strong> <span id="attemptNumber">1</span></div>
+    <div class="badge"><strong>Score:</strong> <span id="scoreBadge">—</span></div>
+    <div class="badge"><strong>Name:</strong> <input id="studentName" type="text" placeholder="optional" /></div>
+  </div>
+
+  <div class="layout">
+    <div>
+      <section class="panel">
+        <h2>Production data</h2>
+        <table aria-label="Production possibilities per country">
+          <thead><tr><th>Country</th><th id="colGoodX">Good X</th><th id="colGoodY">Good Y</th></tr></thead>
+          <tbody id="dataBody"></tbody>
+        </table>
+        <p class="small">Each row shows the maximum units a country could make of that good if it devoted <em>all</em> its resources to it (its production possibilities frontier is a straight line between these two points). Opportunity cost is constant along each country's PPF.</p>
+        <div class="controls">
+          <button id="newButton" type="button">New activity</button>
+          <button id="resetButton" type="button">Reset all answers</button>
+        </div>
+      </section>
+    </div>
+
+    <div>
+      <section class="panel">
+        <h2>Plot the production possibilities frontiers</h2>
+        <div class="controls" style="margin-top:0;margin-bottom:10px;">
+          <span class="small">Plotting for:</span>
+          <button id="toggleA" class="toggle active" type="button"></button>
+          <button id="toggleB" class="toggle" type="button"></button>
+        </div>
+        <canvas id="graph" width="720" height="600" aria-label="Interactive PPF graph"></canvas>
+        <div class="legend" id="legend"></div>
+        <div class="controls">
+          <button id="undoButton" type="button">Undo last point</button>
+          <button id="clearButton" type="button">Clear graph</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <section class="panel">
+    <h2>Opportunity cost</h2>
+    <div class="narrative-box">
+      <strong>Worked example:</strong> Suppose a country can produce up to 20 units of Good A <em>or</em> 10 units of Good B if it devotes all its resources to one or the other. Its opportunity cost of producing 1 more unit of Good B = Max Good A ÷ Max Good B = 20 ÷ 10 = <strong>2 units of Good A</strong>. (That means: to get 1 more Good B, it has to give up 2 Good A.)
+    </div>
+    <div id="ocQuestions"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Absolute & comparative advantage</h2>
+    <div id="advQuestions"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Specialization & trade</h2>
+    <div id="specExplainer" class="narrative-box"></div>
+    <div id="specQuestions"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Shifting the PPF</h2>
+    <p class="small">Two separate examples below — something happens to change how much a country can produce. In each one, read what happens, then drag the line to show what its PPF looks like afterward.</p>
+    <div class="narrative-box" style="background:#eef2f7;">
+      <p style="margin:0 0 8px;"><strong>How to know which way to drag:</strong></p>
+      <ul style="margin:0 0 10px; padding-left:20px;">
+        <li>If the event affects the <strong>whole economy</strong>, both goods go up or down together. Just drag the line <strong>right</strong> (more of both goods) or <strong>left</strong> (less of both goods) — we only check the direction, not the exact amount.</li>
+        <li>If the event affects <strong>only one industry</strong>, only that good's amount changes and the other stays the same. The example will tell you the <strong>exact new number</strong> — drag that axis's point to match it exactly.</li>
+      </ul>
+      <p style="margin:0;"><strong>Worked example:</strong> Suppose a country invents a new machine that helps it make more cars, and it says the country can now produce up to 30 cars (up from 20), with no effect on its wheat production. That's a one-industry change, so you'd drag the point on the cars axis from 20 out to exactly 30, leaving the wheat side of the line where it was.</p>
+    </div>
+    <div id="growthContainer"></div>
+  </section>
+
+  <section class="panel">
+    <h2>Check your work</h2>
+    <div class="controls">
+      <button id="checkButton" class="primary" type="button">Check Answers</button>
+      <button id="downloadButton" type="button" disabled>Download Result Image</button>
+    </div>
+    <div id="status" class="status" aria-live="polite">Complete the graphs and all questions, then check your answers.</div>
+    <div class="score-breakdown" id="breakdown"></div>
+    <img id="resultPreview" alt="Result image preview" />
+  </section>
+
+  <footer class="app-footer">ECON 120 &middot; Week 2 &middot; Beyond the lecture 2 &middot; Khrystyna Somik</footer>
+</main>
+
+<script>
+"use strict";
+
+/* ---------- constants & pools ---------- */
+const COUNTRY_POOL = ["Brazil","Vietnam","Germany","Kenya","Canada","Thailand","Chile","Poland","Egypt","Australia","Mexico","Indonesia","Nigeria","Peru"];
+const GOODS_POOL = [["coffee","automobiles"],["wheat","electronics"],["cotton","machinery"],["crude oil","automobiles"],["bananas","pharmaceuticals"],["rice","steel"],["timber","electronics"],["sugar","automobiles"],["cocoa","machinery"],["copper","automobiles"],["textiles","electronics"],["furniture","automobiles"],["soybeans","machinery"],["natural gas","electronics"]];
+const CANDIDATES = [4,6,8,9,10,12,15,16,18,20];
+const AXIS_MAX = 20;
+const GROWTH_AXIS_MAX = 40;
+const TOLERANCE = 0.03;
+const TIE_EPS = 0.02;
+const margin = { left:78, right:36, top:36, bottom:70 };
+const GROWTH_MARGIN = { left:60, right:24, top:22, bottom:44 };
+
+const PARALLEL_GROWTH_REASONS = ["builds many new roads, schools, and factories across the country","gets many new machines and tools for all of its industries","trains many more workers with new skills across its economy"];
+const PARALLEL_DECLINE_REASONS = ["is hit by a natural disaster that damages factories and farms all over the country","loses many workers to a serious illness that spreads nationwide","suffers widespread flooding that damages farmland and factories across the country"];
+const SECTOR_GROWTH_REASONS = ["invents a new machine that helps make more {good}","discovers a large new supply of a resource used to make {good}","builds several new factories that make {good}","learns a better way to produce {good}"];
+const SECTOR_DECLINE_REASONS = ["is hit by a natural disaster that damages the factories that make {good}","suffers a fire that destroys several factories that make {good}","loses access to a key resource needed to make {good}","faces a shortage of workers trained to make {good}"];
+
+const canvas = document.getElementById("graph");
+const ctx = canvas.getContext("2d");
+
+const state = {
+  id:"", attempts:1, studentName:"", score:null,
+  producers:["",""], goods:["",""], maxX:[0,0], maxY:[0,0],
+  ocX:[0,0], ocY:[0,0], absAdvX:0, absAdvY:0, compAdvX:0, compAdvY:0,
+  totalX:0, totalY:0,
+  plottedA:[], plottedB:[], activeProducer:0, checked:false,
+  growthExamples:[]
+};
+
+/* ---------- helpers ---------- */
+function randomInt(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+function randomChoice(arr){ return arr[randomInt(0,arr.length-1)]; }
+function randomCode(){ const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; let c=""; for(let i=0;i<8;i++) c+=chars[randomInt(0,chars.length-1)]; return c; }
+function pickTwoCountries(){ const pool=[...COUNTRY_POOL]; const i=randomInt(0,pool.length-1); const first=pool.splice(i,1)[0]; const j=randomInt(0,pool.length-1); const second=pool.splice(j,1)[0]; return [first,second]; }
+function pickGoods(){ const pair=randomChoice(GOODS_POOL); return Math.random()<0.5 ? pair : [pair[1],pair[0]]; }
+function numClose(a,b){ return Math.abs(a-b) <= TOLERANCE; }
+function ocR(n){ return Math.round(n*100)/100; }
+function capitalize(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+
+/* ---------- scenario generation ---------- */
+function generateScenario(){
+  let attempt=0;
+  while(attempt<500){
+    attempt++;
+    const producers = pickTwoCountries();
+    const goods = pickGoods();
+    const aX = randomChoice(CANDIDATES), aY = randomChoice(CANDIDATES);
+    const bX = randomChoice(CANDIDATES), bY = randomChoice(CANDIDATES);
+    if(aX===bX || aY===bY) continue;
+    const ocXA = aY/aX, ocXB = bY/bX;
+    if(Math.abs(ocXA-ocXB) < 0.02) continue;
+    return { producers, goods, maxX:[aX,bX], maxY:[aY,bY] };
+  }
+  return { producers:pickTwoCountries(), goods:pickGoods(), maxX:[8,10], maxY:[16,10] };
+}
+function analyzeScenario(sc){
+  const ocX = [ sc.maxY[0]/sc.maxX[0], sc.maxY[1]/sc.maxX[1] ];
+  const ocY = [ sc.maxX[0]/sc.maxY[0], sc.maxX[1]/sc.maxY[1] ];
+  const absAdvX = sc.maxX[0] > sc.maxX[1] ? 0 : 1;
+  const absAdvY = sc.maxY[0] > sc.maxY[1] ? 0 : 1;
+  const compAdvX = ocX[0] < ocX[1] ? 0 : 1;
+  const compAdvY = ocY[0] < ocY[1] ? 0 : 1;
+  const totalX = sc.maxX[compAdvX];
+  const totalY = sc.maxY[compAdvY];
+  return { ocX, ocY, absAdvX, absAdvY, compAdvX, compAdvY, totalX, totalY };
+}
+
+/* ---------- growth examples (can go either direction; always shifts along the X axis so it can be dragged left/right) ---------- */
+function generateGrowthExample(forcedType){
+  const type = forcedType;
+  const direction = Math.random()<0.5 ? "growth" : "decline";
+  const targetCountry = randomInt(0,1);
+  const idx = targetCountry;
+  const pct = direction==="growth" ? randomInt(20,50) : randomInt(15,40);
+  const factor = direction==="growth" ? 1+pct/100 : 1-pct/100;
+  const origMaxX = state.maxX[idx], origMaxY = state.maxY[idx];
+
+  let newMaxX = origMaxX, newMaxY = origMaxY, newOcX;
+  if(type==="sector"){
+    newMaxX = Math.max(1, Math.round(origMaxX*factor));
+    if(newMaxX===origMaxX) newMaxX += (direction==="growth" ? 2 : -1);
+    newOcX = newMaxY/newMaxX;
+  } else {
+    // parallel: only direction matters, so we don't fix an exact target
+    newOcX = origMaxY/origMaxX; // unchanged by a proportional shift
+  }
+
+  let flipped = false;
+  if(type==="sector"){
+    const newOcArr = [ idx===0?newOcX:state.ocX[0], idx===1?newOcX:state.ocX[1] ];
+    let compAdvXAfter;
+    if(newOcArr[0] < newOcArr[1]-TIE_EPS) compAdvXAfter = 0;
+    else if(newOcArr[1] < newOcArr[0]-TIE_EPS) compAdvXAfter = 1;
+    else compAdvXAfter = "tie";
+    flipped = compAdvXAfter !== state.compAdvX;
+  }
+
+  const shiftAnswer =
+    (type==="parallel" && direction==="growth") ? "Parallel shift outward (more of both goods)" :
+    (type==="parallel" && direction==="decline") ? "Parallel shift inward (less of both goods)" :
+    (type==="sector" && direction==="growth") ? "Pivot outward (more of one good only)" :
+    "Pivot inward (less of one good only)";
+
+  return {
+    type, direction, targetCountry:idx, origMaxX, origMaxY, newMaxX, newMaxY,
+    newOcX: ocR(newOcX), flipped, shiftAnswer,
+    currentX: origMaxX, currentY: origMaxY
+  };
+}
+function growthNarrative(ev){
+  const country = state.producers[ev.targetCountry];
+  const affectedGood = state.goods[0];
+  const otherGood = state.goods[1];
+  if(ev.type==="parallel"){
+    const reason = randomChoice(ev.direction==="growth" ? PARALLEL_GROWTH_REASONS : PARALLEL_DECLINE_REASONS);
+    const outcome = ev.direction==="growth" ? "This lets it produce more of both goods than before." : "This means it can produce less of both goods than before.";
+    return `${country} ${reason}. ${outcome}`;
+  }
+  const list = ev.direction==="growth" ? SECTOR_GROWTH_REASONS : SECTOR_DECLINE_REASONS;
+  const reason = randomChoice(list).split("{good}").join(affectedGood);
+  return `${country} ${reason}. It will now be able to produce up to <strong>${ev.newMaxX} ${affectedGood}</strong> (instead of ${ev.origMaxX}) if it devoted all its resources to ${affectedGood}. This does not directly affect its ${otherGood} production.`;
+}
+function updateGrowthPosition(i, newX){
+  const ev = state.growthExamples[i];
+  const idx = ev.targetCountry;
+  ev.currentX = Math.max(0, Math.min(GROWTH_AXIS_MAX, Math.round(newX)));
+  ev.currentY = ev.type==="parallel"
+    ? Math.round((ev.currentX * (state.maxY[idx]/state.maxX[idx])) * 10)/10
+    : state.maxY[idx];
+  state.checked = false; state.score = null;
+  document.getElementById("downloadButton").disabled = true;
+  drawGrowthPlotCanvas(i);
+}
+function nudgeGrowth(i, delta){ updateGrowthPosition(i, state.growthExamples[i].currentX + delta); }
+function resetGrowthPosition(i){ const ev=state.growthExamples[i]; updateGrowthPosition(i, state.maxX[ev.targetCountry]); }
+function growthIsCorrect(i){
+  const ev = state.growthExamples[i];
+  if(ev.type==="sector") return Math.round(ev.currentX) === ev.newMaxX;
+  const DIR_THRESHOLD = 2;
+  return ev.direction==="growth" ? (ev.currentX - ev.origMaxX >= DIR_THRESHOLD) : (ev.origMaxX - ev.currentX >= DIR_THRESHOLD);
+}
+
+/* ---------- question definitions ---------- */
+function buildQuestions(){
+  const [nameA,nameB] = state.producers;
+  const [goodX,goodY] = state.goods;
+  const specA = state.compAdvX===0 ? goodX : goodY;
+  const specB = state.compAdvX===0 ? goodY : goodX;
+
+  return {
+    oc: [
+      { id:"ocXA", type:"equation", prompt:`${nameA}'s opportunity cost of producing 1 more unit of ${goodX} = Max ${goodY} ÷ Max ${goodX}. Plug in the values from the table, then give the opportunity cost.`, numLabel:`Max ${goodY}`, denLabel:`Max ${goodX}`, numAnswer: state.maxY[0], denAnswer: state.maxX[0], answer: state.ocX[0], unit:`units of ${goodY}` },
+      { id:"ocYA", type:"equation", prompt:`${nameA}'s opportunity cost of producing 1 more unit of ${goodY} = Max ${goodX} ÷ Max ${goodY}. Plug in the values from the table, then give the opportunity cost.`, numLabel:`Max ${goodX}`, denLabel:`Max ${goodY}`, numAnswer: state.maxX[0], denAnswer: state.maxY[0], answer: state.ocY[0], unit:`units of ${goodX}` },
+      { id:"ocXB", type:"equation", prompt:`${nameB}'s opportunity cost of producing 1 more unit of ${goodX} = Max ${goodY} ÷ Max ${goodX}. Plug in the values from the table, then give the opportunity cost.`, numLabel:`Max ${goodY}`, denLabel:`Max ${goodX}`, numAnswer: state.maxY[1], denAnswer: state.maxX[1], answer: state.ocX[1], unit:`units of ${goodY}` },
+      { id:"ocYB", type:"equation", prompt:`${nameB}'s opportunity cost of producing 1 more unit of ${goodY} = Max ${goodX} ÷ Max ${goodY}. Plug in the values from the table, then give the opportunity cost.`, numLabel:`Max ${goodX}`, denLabel:`Max ${goodY}`, numAnswer: state.maxX[1], denAnswer: state.maxY[1], answer: state.ocY[1], unit:`units of ${goodX}` }
+    ],
+    adv: [
+      { id:"absAdvX", type:"mcq", prompt:`Which country has an ABSOLUTE advantage in producing ${goodX} (can produce more with the same resources)?`, options:[nameA,nameB], answer: state.producers[state.absAdvX] },
+      { id:"absAdvY", type:"mcq", prompt:`Which country has an ABSOLUTE advantage in producing ${goodY}?`, options:[nameA,nameB], answer: state.producers[state.absAdvY] },
+      { id:"compAdvX", type:"mcq", prompt:`Which country has a COMPARATIVE advantage in producing ${goodX} (lower opportunity cost)?`, options:[nameA,nameB], answer: state.producers[state.compAdvX] },
+      { id:"compAdvY", type:"mcq", prompt:`Which country has a COMPARATIVE advantage in producing ${goodY}?`, options:[nameA,nameB], answer: state.producers[state.compAdvY] }
+    ],
+    spec: [
+      { id:"specA", type:"mcq", prompt:`Based on comparative advantage, which good should ${nameA} specialize in?`, options:[goodX,goodY], answer: specA },
+      { id:"specB", type:"mcq", prompt:`Based on comparative advantage, which good should ${nameB} specialize in?`, options:[goodX,goodY], answer: specB },
+      { id:"gains", type:"mcq", prompt:`If both countries specialize according to comparative advantage and then trade, can total production available to both of them increase compared to no specialization?`, options:["Yes","No"], answer:"Yes" },
+      { id:"totalX", prompt:`If each country specializes according to comparative advantage, what is the total output of ${goodX}?`, unit:`units of ${goodX}`, answer: state.totalX },
+      { id:"totalY", prompt:`If each country specializes according to comparative advantage, what is the total output of ${goodY}?`, unit:`units of ${goodY}`, answer: state.totalY }
+    ]
+  };
+}
+function buildGrowthQuestions(){
+  const qs = [];
+  state.growthExamples.forEach((ev,i)=>{
+    const country = state.producers[ev.targetCountry];
+    const goodX = state.goods[0], goodY = state.goods[1];
+    qs.push({ id:`growthShift${i}`, type:"mcq", prompt:`(Example ${i+1}) What kind of shift does this event cause in ${country}'s PPF?`,
+      options:["Parallel shift outward (more of both goods)","Parallel shift inward (less of both goods)","Pivot outward (more of one good only)","Pivot inward (less of one good only)"],
+      answer: ev.shiftAnswer });
+    qs.push({ id:`growthOC${i}`, prompt:`(Example ${i+1}) After this event, what is ${country}'s new opportunity cost of producing 1 more unit of ${goodX}?`, unit:`units of ${goodY}`, answer: ev.newOcX });
+    qs.push({ id:`growthFlip${i}`, type:"mcq", prompt:`(Example ${i+1}) Does this event change which country has the comparative advantage in ${goodX}?`, options:["Yes","No"], answer: ev.flipped ? "Yes" : "No" });
+  });
+  return qs;
+}
+
+/* ---------- rendering questions ---------- */
+function renderNumeric(q){
+  return `<div class="question" data-qid="${q.id}"><p>${q.prompt}</p>
+    <input type="number" step="any" data-id="${q.id}" /> <span class="unit">${q.unit}</span></div>`;
+}
+function renderMcq(q){
+  const opts = q.options.map((o)=>`<label><input type="radio" name="${q.id}" value="${o}" /> ${o}</label>`).join("");
+  return `<div class="question" data-qid="${q.id}"><p>${q.prompt}</p><div class="options">${opts}</div></div>`;
+}
+function renderEquation(q){
+  return `<div class="question" data-qid="${q.id}"><p>${q.prompt}</p>
+    <div class="equation-row">
+      <span class="eq-label">${q.numLabel}</span>
+      <input type="number" step="any" class="eq-input" data-id="${q.id}_num" placeholder="?" />
+      <span class="eq-op">÷</span>
+      <span class="eq-label">${q.denLabel}</span>
+      <input type="number" step="any" class="eq-input" data-id="${q.id}_den" placeholder="?" />
+      <span class="eq-op">=</span>
+      <input type="number" step="any" class="eq-input" data-id="${q.id}_val" placeholder="?" />
+      <span class="unit">${q.unit}</span>
+    </div></div>`;
+}
+function renderQuestion(q){
+  if(q.type==="mcq") return renderMcq(q);
+  if(q.type==="equation") return renderEquation(q);
+  return renderNumeric(q);
+}
+function renderAllQuestions(){
+  const qs = buildQuestions();
+  const gqs = buildGrowthQuestions();
+  state.questions = [...qs.oc, ...qs.adv, ...qs.spec, ...gqs];
+  document.getElementById("ocQuestions").innerHTML = qs.oc.map(renderQuestion).join("");
+  document.getElementById("advQuestions").innerHTML = qs.adv.map(renderMcq).join("");
+  document.getElementById("specQuestions").innerHTML = qs.spec.map(renderQuestion).join("");
+  renderSpecExplainer();
+  renderGrowthSection(gqs);
+}
+function renderSpecExplainer(){
+  const [nameA,nameB] = state.producers;
+  const [goodX,goodY] = state.goods;
+  const specA = state.compAdvX===0 ? goodX : goodY;
+  const specB = state.compAdvX===0 ? goodY : goodX;
+  document.getElementById("specExplainer").innerHTML =
+    `<p style="margin:0;"><strong>Why trade helps here:</strong> ${nameA} gives up ${ocR(state.ocX[0])} ${goodY} for every extra ${goodX} it makes, while ${nameB} gives up ${ocR(state.ocX[1])} ${goodY} for every extra ${goodX} it makes. Because these opportunity costs are different, both countries can come out ahead by specializing and trading instead of each trying to produce both goods on its own. If ${nameA} specializes in ${specA} and ${nameB} specializes in ${specB}, together they can produce up to <strong>${state.totalX} ${goodX}</strong> and <strong>${state.totalY} ${goodY}</strong> in total.</p>`;
+}
+function growthExampleHTML(ev,i,qHTML){
+  const country = state.producers[ev.targetCountry];
+  const dirWord = ev.direction==="growth" ? "growth" : "decline";
+  const label = ev.type==="parallel" ? `economy-wide ${dirWord}` : `${dirWord} in one industry`;
+  const instructions = ev.type==="parallel"
+    ? `The dashed line is ${country}'s original PPF. Just drag the line ${ev.direction==="growth" ? "to the right" : "to the left"} (or the opposite way, if you disagree) — for this kind of event, only the direction is checked, not the exact spot.`
+    : `The dashed line is ${country}'s original PPF (${state.maxX[ev.targetCountry]} ${state.goods[0]} / ${state.maxY[ev.targetCountry]} ${state.goods[1]}). Drag the point on the ${state.goods[0]} axis to the exact new number stated above.`;
+  return `<div class="panel" style="margin-bottom:16px;">
+    <h3>Example ${i+1}: ${label}</h3>
+    <div class="narrative-box">${growthNarrative(ev)}</div>
+    <canvas class="growthPlotCanvas" id="growthCanvas${i}" width="560" height="420" aria-label="Drag to shift the new PPF"></canvas>
+    <div class="controls" style="margin-top:8px;">
+      <button class="growthNudge" data-idx="${i}" data-dir="-1" type="button">◀ Move left</button>
+      <button class="growthNudge" data-idx="${i}" data-dir="1" type="button">Move right ▶</button>
+      <button class="growthReset" data-idx="${i}" type="button">Reset position</button>
+    </div>
+    <p class="small">${instructions}</p>
+    <div style="margin-top:10px;">${qHTML}</div>
+  </div>`;
+}
+function renderGrowthSection(gqs){
+  const container = document.getElementById("growthContainer");
+  container.innerHTML = state.growthExamples.map((ev,i)=>{
+    const myQs = gqs.filter(q=>q.id.endsWith(String(i)));
+    const qHTML = myQs.map(renderQuestion).join("");
+    return growthExampleHTML(ev,i,qHTML);
+  }).join("");
+  state.growthExamples.forEach((ev,i)=>{
+    const canvasEl = document.getElementById("growthCanvas"+i);
+    canvasEl.addEventListener("mousedown",(e)=>growthDragStart(e,i));
+    canvasEl.addEventListener("touchstart",(e)=>growthDragStart(e,i),{passive:false});
+    drawGrowthPlotCanvas(i);
+  });
+  container.querySelectorAll(".growthNudge").forEach(btn=>{
+    btn.addEventListener("click",()=>nudgeGrowth(+btn.dataset.idx, +btn.dataset.dir));
+  });
+  container.querySelectorAll(".growthReset").forEach(btn=>{
+    btn.addEventListener("click",()=>resetGrowthPosition(+btn.dataset.idx));
+  });
+}
+
+/* ---------- table & meta ---------- */
+function renderDataTable(){
+  document.getElementById("colGoodX").textContent = capitalize(state.goods[0]);
+  document.getElementById("colGoodY").textContent = capitalize(state.goods[1]);
+  const body = document.getElementById("dataBody");
+  body.innerHTML = "";
+  for(let i=0;i<2;i++){
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>${state.producers[i]}</td><td>${state.maxX[i]}</td><td>${state.maxY[i]}</td>`;
+    body.appendChild(tr);
+  }
+}
+function updateMeta(){
+  document.getElementById("activityId").textContent = state.id;
+  document.getElementById("attemptNumber").textContent = state.attempts;
+  document.getElementById("toggleA").textContent = state.producers[0];
+  document.getElementById("toggleB").textContent = state.producers[1];
+  updateLegend();
+}
+function updateLegend(){
+  document.getElementById("legend").innerHTML =
+    `<span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#1f4f8a;margin-right:5px;"></span>${state.producers[0]}'s PPF &nbsp;&nbsp; <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#c1662f;margin-right:5px;"></span>${state.producers[1]}'s PPF<br>Select a country above, then click the two points where its PPF touches each axis. Click a placed point to remove it.`;
+}
+
+/* ---------- main graded graph ---------- */
+function graphArea(){ return { x:margin.left, y:margin.top, width:canvas.width-margin.left-margin.right, height:canvas.height-margin.top-margin.bottom }; }
+function dataToPixel(x,y){ const a=graphArea(); return { x: a.x + (x/AXIS_MAX)*a.width, y: a.y + a.height - (y/AXIS_MAX)*a.height }; }
+function pixelToData(px,py){ const a=graphArea(); return {
+  x: Math.max(0, Math.min(AXIS_MAX, Math.round(((px-a.x)/a.width)*AXIS_MAX))),
+  y: Math.max(0, Math.min(AXIS_MAX, Math.round(((a.y+a.height-py)/a.height)*AXIS_MAX)))
+}; }
+function line(x1,y1,x2,y2){ ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
+
+function expectedPoints(i){ return [ [state.maxX[i],0], [0,state.maxY[i]] ]; }
+function pointCorrect(pt,i){ return expectedPoints(i).some(e => e[0]===pt.x && e[1]===pt.y); }
+
+function drawGraph(){
+  ctx.clearRect(0,0,canvas.width,canvas.height);
+  ctx.fillStyle="#fff"; ctx.fillRect(0,0,canvas.width,canvas.height);
+  const a = graphArea();
+  ctx.lineWidth=1; ctx.strokeStyle="#e2e7ee";
+  for(let v=0; v<=AXIS_MAX; v++){
+    const p1=dataToPixel(v,0), p2=dataToPixel(v,AXIS_MAX); line(p1.x,p1.y,p2.x,p2.y);
+    const p3=dataToPixel(0,v), p4=dataToPixel(AXIS_MAX,v); line(p3.x,p3.y,p4.x,p4.y);
+  }
+  ctx.strokeStyle="#202733"; ctx.lineWidth=2;
+  line(a.x,a.y,a.x,a.y+a.height); line(a.x,a.y+a.height,a.x+a.width,a.y+a.height);
+  ctx.fillStyle="#384151"; ctx.font="12px Arial"; ctx.textAlign="center"; ctx.textBaseline="top";
+  for(let v=0; v<=AXIS_MAX; v+=2){ const pt=dataToPixel(v,0); ctx.fillText(String(v), pt.x, a.y+a.height+8); }
+  ctx.textAlign="right"; ctx.textBaseline="middle";
+  for(let v=0; v<=AXIS_MAX; v+=2){ const pt=dataToPixel(0,v); ctx.fillText(String(v), a.x-10, pt.y); }
+  ctx.fillStyle="#202733"; ctx.font="bold 16px Arial"; ctx.textAlign="center";
+  ctx.fillText(`Quantity of ${state.goods[0]}`, a.x+a.width/2, canvas.height-26);
+  ctx.save(); ctx.translate(22, a.y+a.height/2); ctx.rotate(-Math.PI/2);
+  ctx.fillText(`Quantity of ${state.goods[1]}`,0,0); ctx.restore();
+
+  drawProducer(state.plottedA, 0, "#1f4f8a");
+  drawProducer(state.plottedB, 1, "#c1662f");
+}
+function drawProducer(points, idx, color){
+  if(points.length===2){
+    ctx.strokeStyle=color; ctx.lineWidth=3;
+    const p1=dataToPixel(points[0].x,points[0].y), p2=dataToPixel(points[1].x,points[1].y);
+    line(p1.x,p1.y,p2.x,p2.y);
+  }
+  points.forEach(pt=>{
+    const px = dataToPixel(pt.x,pt.y);
+    let fill = color;
+    if(state.checked) fill = pointCorrect(pt,idx) ? "#2f7a45" : "#b8382f";
+    ctx.beginPath(); ctx.arc(px.x,px.y,8,0,Math.PI*2);
+    ctx.fillStyle=fill; ctx.fill();
+    ctx.strokeStyle="#fff"; ctx.lineWidth=2; ctx.stroke();
+  });
+}
+function canvasCoordinates(event){
+  const r = canvas.getBoundingClientRect();
+  return { x:(event.clientX-r.left)*(canvas.width/r.width), y:(event.clientY-r.top)*(canvas.height/r.height) };
+}
+function handleGraphClick(event){
+  const pos = canvasCoordinates(event), a = graphArea();
+  if(pos.x<a.x || pos.x>a.x+a.width || pos.y<a.y || pos.y>a.y+a.height) return;
+  const point = pixelToData(pos.x,pos.y);
+  const arr = state.activeProducer===0 ? state.plottedA : state.plottedB;
+  const idx = arr.findIndex(p=>p.x===point.x && p.y===point.y);
+  if(idx>=0) arr.splice(idx,1);
+  else if(arr.length<2) arr.push(point);
+  else setStatus("This country already has 2 points plotted. Remove one before adding another.","error");
+  state.checked=false; state.score=null;
+  document.getElementById("downloadButton").disabled=true;
+  drawGraph();
+}
+
+/* ---------- growth plotting canvases ---------- */
+function gExplXY(canvasEl,marg,axisMax,x,y){
+  const areaW = canvasEl.width - marg.left - marg.right, areaH = canvasEl.height - marg.top - marg.bottom;
+  return { x: marg.left + (x/axisMax)*areaW, y: marg.top + areaH - (y/axisMax)*areaH };
+}
+function drawGrowthPlotCanvas(i){
+  const ev = state.growthExamples[i];
+  const canvasEl = document.getElementById("growthCanvas"+i);
+  if(!canvasEl) return;
+  const g = canvasEl.getContext("2d");
+  const marg = GROWTH_MARGIN, axisMax = GROWTH_AXIS_MAX;
+
+  g.clearRect(0,0,canvasEl.width,canvasEl.height);
+  g.fillStyle="#fff"; g.fillRect(0,0,canvasEl.width,canvasEl.height);
+  g.strokeStyle="#e2e7ee"; g.lineWidth=1;
+  for(let v=0; v<=axisMax; v+=4){
+    const p1=gExplXY(canvasEl,marg,axisMax,v,0), p2=gExplXY(canvasEl,marg,axisMax,v,axisMax);
+    g.beginPath(); g.moveTo(p1.x,p1.y); g.lineTo(p2.x,p2.y); g.stroke();
+    const p3=gExplXY(canvasEl,marg,axisMax,0,v), p4=gExplXY(canvasEl,marg,axisMax,axisMax,v);
+    g.beginPath(); g.moveTo(p3.x,p3.y); g.lineTo(p4.x,p4.y); g.stroke();
+  }
+  g.strokeStyle="#202733"; g.lineWidth=2;
+  const origin=gExplXY(canvasEl,marg,axisMax,0,0), xEnd=gExplXY(canvasEl,marg,axisMax,axisMax,0), yEnd=gExplXY(canvasEl,marg,axisMax,0,axisMax);
+  g.beginPath(); g.moveTo(origin.x,origin.y); g.lineTo(xEnd.x,xEnd.y); g.stroke();
+  g.beginPath(); g.moveTo(origin.x,origin.y); g.lineTo(yEnd.x,yEnd.y); g.stroke();
+  g.fillStyle="#384151"; g.font="11px Arial"; g.textAlign="center"; g.textBaseline="top";
+  for(let v=0; v<=axisMax; v+=4){ const p=gExplXY(canvasEl,marg,axisMax,v,0); g.fillText(String(v), p.x, p.y+6); }
+  g.textAlign="right"; g.textBaseline="middle";
+  for(let v=0; v<=axisMax; v+=4){ const p=gExplXY(canvasEl,marg,axisMax,0,v); g.fillText(String(v), p.x-8, p.y); }
+  g.fillStyle="#202733"; g.font="bold 13px Arial"; g.textAlign="center";
+  g.fillText(capitalize(state.goods[0]), marg.left+(canvasEl.width-marg.left-marg.right)/2, canvasEl.height-14);
+  g.save(); g.translate(16, marg.top+(canvasEl.height-marg.top-marg.bottom)/2); g.rotate(-Math.PI/2);
+  g.fillText(capitalize(state.goods[1]),0,0); g.restore();
+
+  g.setLineDash([5,4]); g.strokeStyle="#8a93a3"; g.lineWidth=2;
+  const o1=gExplXY(canvasEl,marg,axisMax,state.maxX[ev.targetCountry],0), o2=gExplXY(canvasEl,marg,axisMax,0,state.maxY[ev.targetCountry]);
+  g.beginPath(); g.moveTo(o1.x,o1.y); g.lineTo(o2.x,o2.y); g.stroke();
+  g.setLineDash([]);
+
+  const lineColor = state.checked ? (growthIsCorrect(i) ? "#2f7a45" : "#b8382f") : "#1f4f8a";
+  const n1 = gExplXY(canvasEl,marg,axisMax,ev.currentX,0), n2 = gExplXY(canvasEl,marg,axisMax,0,ev.currentY);
+  g.strokeStyle = lineColor; g.lineWidth = 3;
+  g.beginPath(); g.moveTo(n1.x,n1.y); g.lineTo(n2.x,n2.y); g.stroke();
+
+  g.beginPath(); g.arc(n1.x,n1.y,5,0,Math.PI*2);
+  g.fillStyle = lineColor; g.fill(); g.strokeStyle="#fff"; g.lineWidth=2; g.stroke();
+
+  g.fillStyle="#1f2937"; g.font="bold 12px Arial"; g.textAlign="center"; g.textBaseline="bottom";
+  g.fillText(`${ev.currentX} ${state.goods[0]}`, n1.x, n1.y-14);
+}
+function growthEventPos(event,canvasEl){
+  const r = canvasEl.getBoundingClientRect();
+  const clientX = event.touches ? event.touches[0].clientX : event.clientX;
+  const clientY = event.touches ? event.touches[0].clientY : event.clientY;
+  return { x:(clientX-r.left)*(canvasEl.width/r.width), y:(clientY-r.top)*(canvasEl.height/r.height) };
+}
+let growthDragIdx = -1;
+function distToSegment(px,py,x1,y1,x2,y2){
+  const dx=x2-x1, dy=y2-y1;
+  const lenSq = dx*dx+dy*dy;
+  let t = lenSq===0 ? 0 : ((px-x1)*dx+(py-y1)*dy)/lenSq;
+  t = Math.max(0, Math.min(1, t));
+  const projX = x1+t*dx, projY = y1+t*dy;
+  return Math.hypot(px-projX, py-projY);
+}
+function growthDragStart(event,i){
+  const canvasEl = document.getElementById("growthCanvas"+i);
+  const pos = growthEventPos(event,canvasEl);
+  const ev = state.growthExamples[i];
+  const n1 = gExplXY(canvasEl,GROWTH_MARGIN,GROWTH_AXIS_MAX,ev.currentX,0);
+  const n2 = gExplXY(canvasEl,GROWTH_MARGIN,GROWTH_AXIS_MAX,0,ev.currentY);
+  if(distToSegment(pos.x,pos.y,n1.x,n1.y,n2.x,n2.y) <= 16){
+    growthDragIdx = i;
+    event.preventDefault();
+  }
+}
+function growthDragMove(event){
+  if(growthDragIdx<0) return;
+  const i = growthDragIdx;
+  const canvasEl = document.getElementById("growthCanvas"+i);
+  if(!canvasEl) return;
+  const pos = growthEventPos(event,canvasEl);
+  const areaW = canvasEl.width - GROWTH_MARGIN.left - GROWTH_MARGIN.right;
+  const dataX = ((pos.x-GROWTH_MARGIN.left)/areaW)*GROWTH_AXIS_MAX;
+  updateGrowthPosition(i, dataX);
+  event.preventDefault();
+}
+function growthDragEnd(){ growthDragIdx = -1; }
+document.addEventListener("mousemove", growthDragMove);
+document.addEventListener("mouseup", growthDragEnd);
+document.addEventListener("touchmove", growthDragMove, {passive:false});
+document.addEventListener("touchend", growthDragEnd);
+
+/* ---------- grading ---------- */
+function gradeGraph(){
+  let correct=0;
+  state.plottedA.forEach(pt=>{ if(pointCorrect(pt,0)) correct++; });
+  state.plottedB.forEach(pt=>{ if(pointCorrect(pt,1)) correct++; });
+  return correct;
+}
+function gradeGrowthPlots(){
+  let correct=0;
+  state.growthExamples.forEach((ev,i)=>{ if(growthIsCorrect(i)) correct++; });
+  return correct;
+}
+function clearQuestionStyles(){
+  document.querySelectorAll(".question").forEach(el=>el.classList.remove("q-correct","q-incorrect"));
+  document.querySelectorAll(".eq-input").forEach(el=>el.classList.remove("q-correct","q-incorrect"));
+}
+function checkAnswers(){
+  clearQuestionStyles();
+  let correct=0, total=0;
+
+  const graphScore = gradeGraph();
+  correct += graphScore; total += 4;
+
+  const growthPlotScore = gradeGrowthPlots();
+  correct += growthPlotScore; total += state.growthExamples.length;
+
+  state.checked = true;
+
+  state.questions.forEach(q=>{
+    if(q.type==="equation"){
+      total += 3;
+      const numInput = document.querySelector(`input[data-id="${q.id}_num"]`);
+      const denInput = document.querySelector(`input[data-id="${q.id}_den"]`);
+      const valInput = document.querySelector(`input[data-id="${q.id}_val"]`);
+      const numVal = parseFloat(numInput.value), denVal = parseFloat(denInput.value), valVal = parseFloat(valInput.value);
+      const numOk = !isNaN(numVal) && numClose(numVal, q.numAnswer);
+      const denOk = !isNaN(denVal) && numClose(denVal, q.denAnswer);
+      const valOk = !isNaN(valVal) && numClose(valVal, q.answer);
+      numInput.classList.add(numOk ? "q-correct" : "q-incorrect");
+      denInput.classList.add(denOk ? "q-correct" : "q-incorrect");
+      valInput.classList.add(valOk ? "q-correct" : "q-incorrect");
+      correct += (numOk?1:0) + (denOk?1:0) + (valOk?1:0);
+      return;
+    }
+    total += 1;
+    const wrap = document.querySelector(`.question[data-qid="${q.id}"]`);
+    let isCorrect = false;
+    if(q.type==="mcq"){
+      const sel = document.querySelector(`input[name="${q.id}"]:checked`);
+      isCorrect = !!sel && sel.value === q.answer;
+    } else {
+      const input = document.querySelector(`input[data-id="${q.id}"]`);
+      const val = parseFloat(input.value);
+      isCorrect = !isNaN(val) && numClose(val, q.answer);
+    }
+    if(isCorrect) correct++;
+    if(wrap) wrap.classList.add(isCorrect ? "q-correct" : "q-incorrect");
+  });
+
+  const percent = Math.round((correct/total)*100);
+  state.score = { correct, total, percent };
+  state.studentName = document.getElementById("studentName").value.trim();
+  document.getElementById("scoreBadge").textContent = `${correct}/${total} (${percent}%)`;
+
+  const statusType = percent===100 ? "success" : (percent>=60 ? "" : "error");
+  setStatus(`Score: ${correct}/${total} (${percent}%). Green = correct, red = needs another look. Activity code: ${state.id}.`, statusType);
+
+  const growthQScore = countCategoryCorrect(["growthShift0","growthOC0","growthFlip0","growthShift1","growthOC1","growthFlip1"]);
+  document.getElementById("breakdown").innerHTML =
+    `<div class="item">Graph: ${graphScore}/4</div>
+     <div class="item">Opportunity cost: ${countCategoryCorrect(["ocXA","ocYA","ocXB","ocYB"])}/12</div>
+     <div class="item">Advantage identification: ${countCategoryCorrect(["absAdvX","absAdvY","compAdvX","compAdvY"])}/4</div>
+     <div class="item">Specialization & trade: ${countCategoryCorrect(["specA","specB","gains","totalX","totalY"])}/5</div>
+     <div class="item">Growth — shifted line: ${growthPlotScore}/${state.growthExamples.length}</div>
+     <div class="item">Growth — questions: ${growthQScore}/6</div>`;
+
+  drawGraph();
+  state.growthExamples.forEach((ev,i)=>drawGrowthPlotCanvas(i));
+  document.getElementById("downloadButton").disabled = false;
+  state.attempts += 1;
+  updateMeta();
+}
+function countCategoryCorrect(ids){
+  let c=0;
+  ids.forEach(id=>{
+    const q = state.questions.find(qq=>qq.id===id);
+    if(!q) return;
+    if(q.type==="mcq"){
+      const sel = document.querySelector(`input[name="${id}"]:checked`);
+      if(sel && sel.value===q.answer) c++;
+    } else if(q.type==="equation"){
+      const numInput = document.querySelector(`input[data-id="${id}_num"]`);
+      const denInput = document.querySelector(`input[data-id="${id}_den"]`);
+      const valInput = document.querySelector(`input[data-id="${id}_val"]`);
+      const numVal = parseFloat(numInput.value), denVal = parseFloat(denInput.value), valVal = parseFloat(valInput.value);
+      if(!isNaN(numVal) && numClose(numVal,q.numAnswer)) c++;
+      if(!isNaN(denVal) && numClose(denVal,q.denAnswer)) c++;
+      if(!isNaN(valVal) && numClose(valVal,q.answer)) c++;
+    } else {
+      const input = document.querySelector(`input[data-id="${id}"]`);
+      const val = parseFloat(input.value);
+      if(!isNaN(val) && numClose(val,q.answer)) c++;
+    }
+  });
+  return c;
+}
+
+/* ---------- status ---------- */
+function setStatus(message,type){
+  const box = document.getElementById("status");
+  box.textContent = message;
+  box.className = `status${type?" "+type:""}`;
+}
+
+/* ---------- result image ---------- */
+function roundRect(c,x,y,w,h,r){
+  c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r);
+  c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath();
+}
+function generateResultImage(){
+  const c = document.createElement("canvas"); c.width=900; c.height=560;
+  const g = c.getContext("2d");
+  g.fillStyle="#f6f7f9"; g.fillRect(0,0,900,560);
+  g.fillStyle="#ffffff"; roundRect(g,30,30,840,500,16); g.fill();
+  g.strokeStyle="#d8dde6"; g.lineWidth=2; roundRect(g,30,30,840,500,16); g.stroke();
+
+  g.fillStyle="#1f2937"; g.textAlign="center";
+  g.font="bold 24px Arial"; g.fillText("Opportunity Cost, Advantage & Growth", 450, 80);
+  g.font="bold 18px Arial"; g.fillStyle="#596273"; g.fillText("Practice — Result", 450, 108);
+
+  const rows = [];
+  if(state.studentName) rows.push(["Student", state.studentName]);
+  rows.push(["Activity code", state.id]);
+  rows.push(["Attempt", String(state.attempts-1)]);
+  rows.push(["Date", new Date().toLocaleString()]);
+
+  let y = 165;
+  rows.forEach(([label,value])=>{
+    g.textAlign="left";
+    g.font="bold 16px Arial"; g.fillStyle="#384151"; g.fillText(label+":", 90, y);
+    g.font="16px Arial"; g.fillStyle="#1f2937"; g.fillText(value, 260, y);
+    y += 32;
+  });
+
+  const pct = state.score.percent;
+  g.textAlign="center";
+  g.font="bold 70px Arial";
+  g.fillStyle = pct>=80 ? "#2f7a45" : (pct>=50 ? "#b8722f" : "#b8382f");
+  g.fillText(pct+"%", 450, 410);
+  g.font="18px Arial"; g.fillStyle="#596273";
+  g.fillText(`${state.score.correct} of ${state.score.total} points correct`, 450, 445);
+
+  g.font="13px Arial"; g.fillStyle="#8a93a3";
+  g.fillText("Save this image and upload it to your course (e.g., Canvas) as proof of completion.", 450, 505);
+
+  return c;
+}
+function downloadResultImage(){
+  if(!state.score) return;
+  const c = generateResultImage();
+  c.toBlob(blob=>{
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = `advantage-growth-${state.id}-attempt${state.attempts-1}.png`;
+    a.click(); URL.revokeObjectURL(url);
+  }, "image/png");
+  const preview = document.getElementById("resultPreview");
+  preview.src = c.toDataURL("image/png");
+  preview.style.display = "block";
+}
+
+/* ---------- activity lifecycle ---------- */
+function newActivity(){
+  const sc = generateScenario();
+  const analysis = analyzeScenario(sc);
+  Object.assign(state, sc, analysis);
+  state.id = randomCode();
+  state.attempts = 1;
+  state.score = null;
+  state.checked = false;
+  state.plottedA = [];
+  state.plottedB = [];
+  state.activeProducer = 0;
+  state.growthExamples = [ generateGrowthExample("parallel"), generateGrowthExample("sector") ];
+
+  document.getElementById("toggleA").classList.add("active");
+  document.getElementById("toggleB").classList.remove("active");
+  document.getElementById("scoreBadge").textContent = "—";
+  document.getElementById("downloadButton").disabled = true;
+  document.getElementById("resultPreview").style.display = "none";
+  document.getElementById("breakdown").innerHTML = "";
+
+  renderDataTable();
+  renderAllQuestions();
+  updateMeta();
+  drawGraph();
+
+  setStatus("Complete the graphs and all questions, then check your answers.", "");
+}
+function resetAnswers(){
+  document.querySelectorAll('input[type=number]').forEach(i=>i.value="");
+  document.querySelectorAll('input[type=radio]').forEach(i=>i.checked=false);
+  state.plottedA = []; state.plottedB = [];
+  state.growthExamples.forEach(ev=>{ ev.currentX = state.maxX[ev.targetCountry]; ev.currentY = state.maxY[ev.targetCountry]; });
+  state.checked = false; state.score = null;
+  clearQuestionStyles();
+  document.getElementById("scoreBadge").textContent = "—";
+  document.getElementById("downloadButton").disabled = true;
+  document.getElementById("resultPreview").style.display = "none";
+  document.getElementById("breakdown").innerHTML = "";
+  drawGraph();
+  state.growthExamples.forEach((ev,i)=>drawGrowthPlotCanvas(i));
+  setStatus("Answers cleared. Give it another go.", "");
+}
+
+/* ---------- event wiring ---------- */
+document.getElementById("toggleA").addEventListener("click", ()=>{ state.activeProducer=0; document.getElementById("toggleA").classList.add("active"); document.getElementById("toggleB").classList.remove("active"); });
+document.getElementById("toggleB").addEventListener("click", ()=>{ state.activeProducer=1; document.getElementById("toggleB").classList.add("active"); document.getElementById("toggleA").classList.remove("active"); });
+document.getElementById("undoButton").addEventListener("click", ()=>{
+  const arr = state.activeProducer===0 ? state.plottedA : state.plottedB;
+  arr.pop(); state.checked=false; state.score=null;
+  document.getElementById("downloadButton").disabled=true;
+  drawGraph();
+});
+document.getElementById("clearButton").addEventListener("click", ()=>{
+  state.plottedA=[]; state.plottedB=[]; state.checked=false; state.score=null;
+  document.getElementById("downloadButton").disabled=true;
+  drawGraph(); setStatus("Graph cleared.","");
+});
+document.getElementById("newButton").addEventListener("click", ()=>{
+  if(window.confirm("Create a new random activity? Your current unsaved work will be cleared.")) newActivity();
+});
+document.getElementById("resetButton").addEventListener("click", ()=>{
+  if(window.confirm("Clear all your answers and the graphs for this activity?")) resetAnswers();
+});
+document.getElementById("checkButton").addEventListener("click", checkAnswers);
+document.getElementById("downloadButton").addEventListener("click", downloadResultImage);
+canvas.addEventListener("click", handleGraphClick);
+
+newActivity();
+</script>
+</body>
+</html>
