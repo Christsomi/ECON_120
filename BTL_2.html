@@ -21,10 +21,10 @@
   th,td { border:1px solid #cfd6df; padding:9px; text-align:center; }
   th { background:#eef2f7; }
   .panel { border:1px solid #d8dde6; border-radius:12px; padding:16px; background:#fcfcfd; margin-bottom:20px; }
-  canvas { width:100%; max-width:620px; aspect-ratio:1.2/1; display:block; border:1px solid #aeb7c4; background:white; }
+  canvas { width:100%; max-width:520px; aspect-ratio:1.2/1; display:block; border:1px solid #aeb7c4; background:white; }
   #graph { cursor:crosshair; touch-action:none; }
   .growthPlotCanvas { cursor:grab; touch-action:none; }
-  .growthPlotCanvas { aspect-ratio:auto !important; max-width:none !important; }
+  .growthPlotCanvas { width:min(100%,500px); max-width:500px !important; height:auto; aspect-ratio:auto !important; }
   .controls { display:flex; flex-wrap:wrap; gap:10px; margin-top:14px; align-items:center; }
   button { border:1px solid #8e99a8; background:#fff; color:#1f2937; border-radius:8px; padding:9px 14px; font-weight:600; cursor:pointer; font-size:.92rem; }
   button:hover { background:#f1f5f9; }
@@ -116,7 +116,7 @@
   </section>
 
   <section class="panel">
-    <h2>Specialization & trade</h2>
+    <h2>Specialization, trade & consumption</h2>
     <div id="specExplainer" class="narrative-box"></div>
     <div id="specQuestions"></div>
   </section>
@@ -273,10 +273,15 @@ function growthNarrative(ev){
   const reason = randomChoice(list).split("{good}").join(affectedGood);
   return `${country} ${reason}. It will now be able to produce up to <strong>${ev.newMaxX} ${affectedGood}</strong> (instead of ${ev.origMaxX}) if it devoted all its resources to ${affectedGood}. This does not directly affect its ${otherGood} production.`;
 }
+function maxGrowthX(ev){
+  if(ev.type!=="parallel") return GROWTH_AXIS_MAX;
+  const slope = ev.origMaxY/ev.origMaxX;
+  return Math.floor(Math.min(GROWTH_AXIS_MAX, GROWTH_AXIS_MAX/slope));
+}
 function updateGrowthPosition(i, newX){
   const ev = state.growthExamples[i];
   const idx = ev.targetCountry;
-  ev.currentX = Math.max(0, Math.min(GROWTH_AXIS_MAX, Math.round(newX)));
+  ev.currentX = Math.max(0, Math.min(maxGrowthX(ev), Math.round(newX)));
   ev.currentY = ev.type==="parallel"
     ? Math.round((ev.currentX * (state.maxY[idx]/state.maxX[idx])) * 10)/10
     : state.maxY[idx];
@@ -318,7 +323,10 @@ function buildQuestions(){
       { id:"specB", type:"mcq", prompt:`Based on comparative advantage, which good should ${nameB} specialize in?`, options:[goodX,goodY], answer: specB },
       { id:"gains", type:"mcq", prompt:`If both countries specialize according to comparative advantage and then trade, can total production available to both of them increase compared to no specialization?`, options:["Yes","No"], answer:"Yes" },
       { id:"totalX", prompt:`If each country specializes according to comparative advantage, what is the total output of ${goodX}?`, unit:`units of ${goodX}`, answer: state.totalX },
-      { id:"totalY", prompt:`If each country specializes according to comparative advantage, what is the total output of ${goodY}?`, unit:`units of ${goodY}`, answer: state.totalY }
+      { id:"totalY", prompt:`If each country specializes according to comparative advantage, what is the total output of ${goodY}?`, unit:`units of ${goodY}`, answer: state.totalY },
+      { id:"tradeTerms", type:"mcq", prompt:`For both countries to gain, where should the trade price of 1 unit of ${goodX} fall?`, options:[`Between ${ocR(Math.min(...state.ocX))} and ${ocR(Math.max(...state.ocX))} units of ${goodY}`,"Below both countries' opportunity costs","Above both countries' opportunity costs"], answer:`Between ${ocR(Math.min(...state.ocX))} and ${ocR(Math.max(...state.ocX))} units of ${goodY}` },
+      { id:"tradeProduction", type:"mcq", prompt:`Once specialization has occurred, does the act of trading itself create additional output?`, options:["No — trade reallocates the output already produced","Yes — exchanging goods automatically creates more output"], answer:"No — trade reallocates the output already produced" },
+      { id:"tradeConsumption", type:"mcq", prompt:`After specializing and trading, can a country consume a combination of ${goodX} and ${goodY} beyond its own PPF?`, options:["Yes","No"], answer:"Yes" }
     ]
   };
 }
@@ -378,8 +386,13 @@ function renderSpecExplainer(){
   const [goodX,goodY] = state.goods;
   const specA = state.compAdvX===0 ? goodX : goodY;
   const specB = state.compAdvX===0 ? goodY : goodX;
+  const lowOC = Math.min(...state.ocX), highOC = Math.max(...state.ocX);
+  const exampleTradePrice = ocR((lowOC+highOC)/2);
+  const xExporter = state.producers[state.compAdvX];
+  const xImporter = state.producers[state.compAdvY];
   document.getElementById("specExplainer").innerHTML =
-    `<p style="margin:0;"><strong>Why trade helps here:</strong> ${nameA} gives up ${ocR(state.ocX[0])} ${goodY} for every extra ${goodX} it makes, while ${nameB} gives up ${ocR(state.ocX[1])} ${goodY} for every extra ${goodX} it makes. Because these opportunity costs are different, both countries can come out ahead by specializing and trading instead of each trying to produce both goods on its own. If ${nameA} specializes in ${specA} and ${nameB} specializes in ${specB}, together they can produce up to <strong>${state.totalX} ${goodX}</strong> and <strong>${state.totalY} ${goodY}</strong> in total.</p>`;
+    `<p style="margin:0 0 10px;"><strong>Why specialization helps:</strong> ${nameA} gives up ${ocR(state.ocX[0])} ${goodY} for every extra ${goodX} it makes, while ${nameB} gives up ${ocR(state.ocX[1])} ${goodY} for every extra ${goodX} it makes. Because these opportunity costs are different, ${nameA} should specialize in ${specA} and ${nameB} should specialize in ${specB}. Together they can then produce up to <strong>${state.totalX} ${goodX}</strong> and <strong>${state.totalY} ${goodY}</strong>.</p>
+     <p style="margin:0;"><strong>What happens after trade:</strong> Trade does not create more goods at the moment of exchange; it redistributes the output created through specialization. A mutually beneficial price for 1 ${goodX} must fall between the two opportunity costs: <strong>${ocR(lowOC)} and ${ocR(highOC)} ${goodY}</strong>. For example, at about <strong>${exampleTradePrice} ${goodY} per ${goodX}</strong>, ${xExporter} receives more ${goodY} than it gives up to make the exported ${goodX}, while ${xImporter} pays less than it would give up to make that ${goodX} itself. As a result, each country may consume a combination beyond its own PPF, even though production still occurs on its PPF.</p>`;
 }
 function growthExampleHTML(ev,i,qHTML){
   const country = state.producers[ev.targetCountry];
@@ -391,7 +404,7 @@ function growthExampleHTML(ev,i,qHTML){
   return `<div class="panel" style="margin-bottom:16px;">
     <h3>Example ${i+1}: ${label}</h3>
     <div class="narrative-box">${growthNarrative(ev)}</div>
-    <canvas class="growthPlotCanvas" id="growthCanvas${i}" width="560" height="420" aria-label="Drag to shift the new PPF"></canvas>
+    <canvas class="growthPlotCanvas" id="growthCanvas${i}" width="500" height="360" aria-label="Drag to shift the new PPF"></canvas>
     <div class="controls" style="margin-top:8px;">
       <button class="growthNudge" data-idx="${i}" data-dir="-1" type="button">◀ Move left</button>
       <button class="growthNudge" data-idx="${i}" data-dir="1" type="button">Move right ▶</button>
@@ -679,7 +692,7 @@ function checkAnswers(){
     `<div class="item">Graph: ${graphScore}/4</div>
      <div class="item">Opportunity cost: ${countCategoryCorrect(["ocXA","ocYA","ocXB","ocYB"])}/12</div>
      <div class="item">Advantage identification: ${countCategoryCorrect(["absAdvX","absAdvY","compAdvX","compAdvY"])}/4</div>
-     <div class="item">Specialization & trade: ${countCategoryCorrect(["specA","specB","gains","totalX","totalY"])}/5</div>
+     <div class="item">Specialization, trade & consumption: ${countCategoryCorrect(["specA","specB","gains","totalX","totalY","tradeTerms","tradeProduction","tradeConsumption"])}/8</div>
      <div class="item">Growth — shifted line: ${growthPlotScore}/${state.growthExamples.length}</div>
      <div class="item">Growth — questions: ${growthQScore}/6</div>`;
 
@@ -849,4 +862,3 @@ canvas.addEventListener("click", handleGraphClick);
 newActivity();
 </script>
 </body>
-</html>
