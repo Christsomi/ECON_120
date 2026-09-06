@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Market Equilibrium Practice</title>
+  <style>
+    :root{
+      --ink:#17233b;--muted:#5d6980;--line:#d9e0ea;--paper:#fff;--wash:#f4f7fb;
+      --navy:#183b66;--blue:#2166d1;--red:#d64a52;--gold:#f2aa2e;--green:#16784b;
+      --bad:#a92834;--good-bg:#e9f7ef;--bad-bg:#fff0f1;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--ink);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:linear-gradient(135deg,#eaf2fb 0,#f8fafc 45%,#edf5f0 100%);min-height:100vh;padding:22px}
+    button,input,select{font:inherit}
+    button{border:1px solid #aeb9c9;background:#fff;color:var(--ink);border-radius:9px;padding:10px 14px;font-weight:700;cursor:pointer}
+    button:hover:not(:disabled){background:#edf3fa}
+    button:focus-visible,input:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:3px solid #ffbf47;outline-offset:2px}
+    button:disabled{opacity:.45;cursor:not-allowed}
+    button.primary{background:var(--navy);border-color:var(--navy);color:#fff}
+    button.primary:hover:not(:disabled){background:#102f54}
+    button.mode.active{background:#e4efff;border-color:var(--blue);color:#174f9d}
+    .shell{max-width:1180px;margin:auto;background:var(--paper);border:1px solid #cfd8e5;border-radius:18px;box-shadow:0 18px 50px rgba(34,56,85,.12);overflow:hidden}
+    header{padding:22px 26px 18px;border-bottom:1px solid var(--line);background:#fff}
+    h1{font-size:clamp(1.45rem,3vw,2rem);margin:0 0 7px;letter-spacing:-.025em}
+    header p{margin:0;max-width:900px;color:var(--muted);line-height:1.55}
+    .meta{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px;align-items:center}
+    .chip{border:1px solid var(--line);background:var(--wash);border-radius:999px;padding:8px 12px;font-size:.9rem}
+    .chip input{border:0;background:transparent;width:135px;min-width:80px;color:var(--ink)}
+    .progress-wrap{padding:15px 26px;background:#f8fafc;border-bottom:1px solid var(--line)}
+    .progress-top{display:flex;justify-content:space-between;gap:14px;font-size:.9rem;font-weight:750;margin-bottom:8px}
+    .bar{height:8px;background:#dfe6ef;border-radius:99px;overflow:hidden}
+    .bar>span{display:block;height:100%;background:linear-gradient(90deg,var(--blue),#38a36d);width:0;transition:width .25s ease}
+    main{padding:24px 26px 28px}
+    .task-grid{display:grid;grid-template-columns:minmax(290px,390px) minmax(430px,1fr);gap:24px;align-items:start}
+    .card{border:1px solid var(--line);border-radius:14px;background:#fff;padding:18px}
+    .task-card{background:linear-gradient(180deg,#fff,#fbfcfe)}
+    .eyebrow{text-transform:uppercase;letter-spacing:.09em;color:#53657e;font-size:.75rem;font-weight:850;margin-bottom:7px}
+    h2{font-size:1.18rem;margin:0 0 10px}
+    .scenario{font-size:1.02rem;line-height:1.55;margin:0 0 15px}
+    .steps{margin:0 0 16px;padding-left:22px;color:#38465d;line-height:1.5}
+    .steps li+li{margin-top:6px}
+    .answer-box{border-top:1px solid var(--line);padding-top:15px;margin-top:15px}
+    .concept-note{background:#eef5ff;border:1px solid #a9c7ee;border-radius:10px;padding:12px 13px;color:#294866;line-height:1.5;font-size:.92rem;margin-bottom:14px}
+    .field{margin:10px 0}
+    .field label{display:block;font-weight:750;font-size:.92rem;margin-bottom:6px}
+    .field input,.field select{width:100%;border:1px solid #aeb9c9;border-radius:8px;padding:10px;background:#fff;color:var(--ink)}
+    .row{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+    .controls{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin-top:14px}
+    .feedback{min-height:58px;border-radius:10px;padding:12px 13px;background:#eef3f8;margin-top:14px;line-height:1.45;font-size:.94rem}
+    .feedback.good{background:var(--good-bg);border:1px solid #75b993;color:#155f3d}
+    .feedback.bad{background:var(--bad-bg);border:1px solid #df9299;color:#85202a}
+    .graph-head{display:flex;justify-content:space-between;gap:10px;align-items:start;margin-bottom:9px;flex-wrap:wrap}
+    .legend{display:flex;gap:12px;flex-wrap:wrap;color:#43516a;font-size:.82rem}
+    .legend-item{display:inline-flex;align-items:center;gap:6px}
+    .swatch{width:22px;height:0;border-top:3px solid}
+    .swatch.base{border-top-style:dashed;opacity:.7}
+    .graph-frame{border:1px solid #b8c3d1;border-radius:12px;background:#fff;padding:7px}
+    svg{display:block;width:100%;height:auto;touch-action:none;user-select:none}
+    .hint{color:var(--muted);font-size:.88rem;line-height:1.45;margin:10px 2px 0}
+    .drag-handle{cursor:ew-resize}
+    .click-surface{cursor:crosshair}
+    .summary{display:none}
+    .summary.open{display:block}
+    .score-ring{width:112px;height:112px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--green) var(--pct),#dce4ed 0);margin:8px auto 16px}
+    .score-ring span{width:84px;height:84px;border-radius:50%;background:#fff;display:grid;place-items:center;font-weight:850;font-size:1.3rem}
+    .review{display:grid;gap:8px;margin-top:14px}
+    .review-item{display:flex;justify-content:space-between;gap:12px;border:1px solid var(--line);border-radius:9px;padding:10px 12px;font-size:.91rem}
+    footer{text-align:center;color:#7c8798;font-size:.82rem;padding:16px;border-top:1px solid var(--line)}
+    @media(max-width:880px){body{padding:8px}.shell{border-radius:12px}header,.progress-wrap,main{padding-left:15px;padding-right:15px}.task-grid{grid-template-columns:1fr}.graph-card{order:-1}.row{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<div class="shell">
+  <header>
+    <h1>Market Equilibrium Practice</h1>
+    <p>Work through six short, real-world market situations. You will mark equilibrium points, calculate shortages and surpluses, and drag supply and demand curves left or right. Shift direction is graded; the exact distance is not.</p>
+    <div class="meta">
+      <span class="chip"><strong>Activity:</strong> <span id="activityCode"></span></span>
+      <span class="chip"><strong>Name:</strong> <input id="studentName" aria-label="Student name" placeholder="optional"></span>
+      <span class="chip"><strong>Score:</strong> <span id="scoreChip">Not scored</span></span>
+    </div>
+  </header>
+  <div class="progress-wrap">
+    <div class="progress-top"><span id="progressText">Question 1 of 6</span><span id="topicText">Equilibrium</span></div>
+    <div class="bar" aria-hidden="true"><span id="progressBar"></span></div>
+  </div>
+  <main>
+    <section id="practice" class="task-grid">
+      <article class="card task-card">
+        <div class="eyebrow" id="taskType"></div>
+        <h2 id="taskTitle"></h2>
+        <p class="scenario" id="scenario"></p>
+        <ol class="steps" id="steps"></ol>
+        <div id="answerBox" class="answer-box"></div>
+        <div class="controls">
+          <button id="checkBtn" class="primary">Check answer</button>
+          <button id="nextBtn" disabled>Next question</button>
+          <button id="resetTaskBtn">Reset question</button>
+        </div>
+        <div id="feedback" class="feedback" aria-live="polite">Follow the steps, then choose <strong>Check answer</strong>.</div>
+      </article>
+      <article class="card graph-card">
+        <div class="graph-head">
+          <div>
+            <div class="eyebrow">Interactive graph</div>
+            <h2 id="graphTitle">Price and quantity</h2>
+          </div>
+          <div class="legend" id="legend"></div>
+        </div>
+        <div id="modeControls" class="controls" style="margin:0 0 10px"></div>
+        <div class="graph-frame">
+          <svg id="graph" viewBox="0 0 700 590" role="img" aria-labelledby="graphTitle graphDesc">
+            <desc id="graphDesc">Interactive supply and demand graph. Follow the question instructions to drag curves or mark an equilibrium.</desc>
+          </svg>
+        </div>
+        <p id="graphHint" class="hint"></p>
+      </article>
+    </section>
+    <section id="summary" class="card summary" aria-live="polite">
+      <div class="eyebrow">Practice complete</div>
+      <h2 style="text-align:center;font-size:1.45rem">Your results</h2>
+      <div class="score-ring" id="scoreRing"><span id="finalScore">0%</span></div>
+      <p id="summaryText" style="text-align:center;color:var(--muted)"></p>
+      <div class="review" id="review"></div>
+      <div class="controls" style="justify-content:center;margin-top:18px">
+        <button id="newSetBtn" class="primary">Start a new set</button>
+        <button id="printBtn">Print results</button>
+      </div>
+    </section>
+  </main>
+  <footer>ECON 120 · UIC · Khrystyna Somik</footer>
+</div>
+<script>
+"use strict";
+const NS="http://www.w3.org/2000/svg";
+const svg=document.getElementById("graph");
+const el=id=>document.getElementById(id);
+const dims={l:82,r:650,t:35,b:465,qMax:60,pMax:100};
+const colors={d:"#2166d1",s:"#d64a52",eq:"#16784b",price:"#9b6b00"};
+const pools={
+ demandUp:[
+  ["Reusable water bottles","A popular fitness campaign encourages more people to carry reusable water bottles."],
+  ["Bus passes","Parking fees rise, so more commuters want monthly bus passes."],
+  ["Strawberries","A widely shared recipe makes strawberries more popular."]
+ ],
+ demandDown:[
+  ["Movie tickets","A new streaming service makes watching films at home more attractive."],
+  ["Printed planners","More students begin using free digital planning apps."],
+  ["Beach umbrellas","A long stretch of cool weather reduces beach visits."]
+ ],
+ supplyUp:[
+  ["Bicycles","A faster assembly machine lowers the cost of producing bicycles."],
+  ["Tomatoes","Excellent growing weather produces a larger tomato harvest."],
+  ["LED lamps","The price of components used in LED lamps falls."]
+ ],
+ supplyDown:[
+  ["Bread","The price of flour used by bakeries rises."],
+  ["Concert T-shirts","A factory closure reduces production of concert T-shirts."],
+  ["Oranges","A freeze damages part of the orange crop."]
+ ],
+ both:[
+  ["Electric scooters","City residents become more interested in electric scooters, while improved batteries make scooters cheaper to produce.","up","up"],
+  ["Home desks","More people return to offices, while lumber prices fall for furniture makers.","down","up"],
+  ["Winter coats","An unusually cold forecast raises interest in winter coats, while shipping delays make coats harder to supply.","up","down"],
+  ["Garden plants","Apartment residents lose interest in balcony gardening, while poor growing weather reduces nursery output.","down","down"]
+ ]
+};
+const state={tasks:[],index:0,answers:[],checked:false,mode:"mark",dShift:0,sShift:0,mark:null,qdMark:null,qsMark:null,drag:null};
+const rand=a=>a[Math.floor(Math.random()*a.length)];
+const code=()=>Array.from({length:7},()=>rand("ABCDEFGHJKLMNPQRSTUVWXYZ23456789")).join("");
+const x=q=>dims.l+(q/dims.qMax)*(dims.r-dims.l);
+const y=p=>dims.b-(p/dims.pMax)*(dims.b-dims.t);
+const qFromX=px=>Math.max(0,Math.min(dims.qMax,(px-dims.l)/(dims.r-dims.l)*dims.qMax));
+const pFromY=py=>Math.max(0,Math.min(dims.pMax,(dims.b-py)/(dims.b-dims.t)*dims.pMax));
+function node(tag,attrs={},text=""){const n=document.createElementNS(NS,tag);for(const[k,v]of Object.entries(attrs))n.setAttribute(k,v);if(text)n.textContent=text;return n}
+function line(parent,x1,y1,x2,y2,attrs={}){parent.append(node("line",{x1,y1,x2,y2,...attrs}))}
+function text(parent,tx,ty,value,attrs={}){parent.append(node("text",{x:tx,y:ty,...attrs},value))}
+function makeTasks(){
+ const dDir=Math.random()<.5?"up":"down",sDir=Math.random()<.5?"up":"down";
+ const d=rand(dDir==="up"?pools.demandUp:pools.demandDown),s=rand(sDir==="up"?pools.supplyUp:pools.supplyDown),b=rand(pools.both);
+ const hi=Math.random()<.5;
+ return [
+  {type:"equilibrium",topic:"Equilibrium",market:"School notebooks",title:"Mark the market equilibrium",scenario:"The graph shows the demand and supply for school notebooks. The equilibrium is where quantity demanded equals quantity supplied."},
+  {type:"imbalance",topic:hi?"Surplus":"Shortage",market:"Fresh sandwiches",price:hi?60:40,title:hi?"Calculate a surplus":"Calculate a shortage",scenario:"A campus café posts a price of $"+(hi?60:40)+" for the quantity scale shown. Read quantity demanded and quantity supplied directly from the graph."},
+  {type:"shift",curve:"d",dir:dDir,topic:"Demand shift",market:d[0],title:"Shift the demand curve",scenario:d[1]},
+  {type:"shift",curve:"s",dir:sDir,topic:"Supply shift",market:s[0],title:"Shift the supply curve",scenario:s[1]},
+  {type:"both",dDir:b[2],sDir:b[3],topic:"Simultaneous shifts",market:b[0],title:"Shift both curves",scenario:b[1]},
+  {type:"imbalance",topic:hi?"Shortage":"Surplus",market:"Farmers' market apples",price:hi?40:60,title:hi?"Calculate a shortage":"Calculate a surplus",scenario:"Sellers at a farmers' market use a price of $"+(hi?40:60)+" for the quantity scale shown. Read both quantities from the graph, then determine the market imbalance."}
+ ];
+}
+function current(){return state.tasks[state.index]}
+function eqPoint(){return {q:30+(state.dShift+state.sShift)/2,p:50+(state.dShift-state.sShift)/2}}
+function curveQ(curve,p,shift){return curve==="d"?80-p+shift:p-20+shift}
+function pathFor(curve,shift){
+ const pts=[];for(let p=0;p<=100;p+=2){const q=curveQ(curve,p,shift);if(q>=0&&q<=60)pts.push([x(q),y(p)])}
+ return pts.map((a,i)=>(i?"L":"M")+a[0].toFixed(1)+" "+a[1].toFixed(1)).join(" ");
+}
+function graphBase(g){
+ const defs=node("defs"),clip=node("clipPath",{id:"plotClip"});clip.append(node("rect",{x:dims.l,y:dims.t,width:dims.r-dims.l,height:dims.b-dims.t}));defs.append(clip);g.append(defs);
+ for(let v=0;v<=100;v+=10){line(g,dims.l,y(v),dims.r,y(v),{stroke:"#e7ecf2","stroke-width":"1"});if(v%20===0)text(g,dims.l-12,y(v)+5,String(v),{"text-anchor":"end","font-size":"13",fill:"#657188"})}
+ for(let v=0;v<=60;v+=10){line(g,x(v),dims.t,x(v),dims.b,{stroke:"#e7ecf2","stroke-width":"1"});text(g,x(v),dims.b+22,String(v),{"text-anchor":"middle","font-size":"13",fill:"#657188"})}
+ line(g,dims.l,dims.t,dims.l,dims.b,{stroke:"#25344c","stroke-width":"2"});line(g,dims.l,dims.b,dims.r,dims.b,{stroke:"#25344c","stroke-width":"2"});
+ text(g,(dims.l+dims.r)/2,575,"Quantity",{"text-anchor":"middle","font-size":"16","font-weight":"700",fill:"#25344c"});
+ const py=text(g,22,(dims.t+dims.b)/2,"Price",{"text-anchor":"middle","font-size":"16","font-weight":"700",fill:"#25344c",transform:"rotate(-90 22 "+((dims.t+dims.b)/2)+")"});
+}
+function draw(){
+ svg.replaceChildren();graphBase(svg);
+ const t=current(),plot=node("g",{"clip-path":"url(#plotClip)"});svg.append(plot);
+ const shifting=t.type==="shift"||t.type==="both";
+ if(shifting){
+  plot.append(node("path",{d:pathFor("d",0),fill:"none",stroke:colors.d,"stroke-width":"3","stroke-dasharray":"9 7",opacity:".48"}));
+  plot.append(node("path",{d:pathFor("s",0),fill:"none",stroke:colors.s,"stroke-width":"3","stroke-dasharray":"9 7",opacity:".48"}));
+ }
+ plot.append(node("path",{d:pathFor("d",state.dShift),fill:"none",stroke:colors.d,"stroke-width":"5","stroke-linecap":"round"}));
+ plot.append(node("path",{d:pathFor("s",state.sShift),fill:"none",stroke:colors.s,"stroke-width":"5","stroke-linecap":"round"}));
+ if(shifting){
+  if(t.curve==="d"||t.type==="both")addHandle("d",35,state.dShift);
+  if(t.curve==="s"||t.type==="both")addHandle("s",65,state.sShift);
+  addEq(30,50,"Original E",true);
+ }
+ if(t.type==="equilibrium"&&state.mark)addEq(state.mark.q,state.mark.p,"Your E",false);
+ if(t.type==="imbalance"){
+  line(plot,dims.l,y(t.price),dims.r,y(t.price),{stroke:colors.price,"stroke-width":"3","stroke-dasharray":"6 5"});
+  text(svg,dims.r-4,y(t.price)-10,"Given price: $"+t.price,{"text-anchor":"end","font-size":"14","font-weight":"800",fill:"#7c5700"});
+  const actualQd=80-t.price,actualQs=t.price-20;
+  if(state.qdMark!==null&&!(state.checked&&near(state.qdMark,actualQd,3)))addQuantityMark(state.qdMark,"Your Qd",colors.d,false);
+  if(state.qsMark!==null&&!(state.checked&&near(state.qsMark,actualQs,3)))addQuantityMark(state.qsMark,"Your Qs",colors.s,false);
+  if(state.checked){
+   addQuantityMark(actualQd,"Qd = "+actualQd,colors.d,true);
+   addQuantityMark(actualQs,"Qs = "+actualQs,colors.s,true);
+   addImbalanceBracket(actualQd,actualQs,(actualQd>actualQs?"Shortage":"Surplus")+" = "+Math.abs(actualQd-actualQs));
+  }
+ }
+ if(t.type==="shift"||t.type==="both"){
+  const e=eqPoint(),studentIsCorrect=state.mark&&near(state.mark.q,e.q,4)&&near(state.mark.p,e.p,5);
+  if(state.mark&&!(state.checked&&studentIsCorrect))addEq(state.mark.q,state.mark.p,"Your E",false);
+  if(state.checked)addEq(e.q,e.p,"Correct E",false);
+ }
+ const isPlotMode=["mark","markQd","markQs"].includes(state.mode);
+ const overlay=node("rect",{x:dims.l,y:dims.t,width:dims.r-dims.l,height:dims.b-dims.t,fill:"transparent",class:isPlotMode?"click-surface":"",tabindex:"0","pointer-events":isPlotMode?"all":"none","aria-label":"Graph plotting area"});svg.append(overlay);
+ overlay.addEventListener("pointerdown",e=>{
+  const pt=svgPoint(e);
+  if(state.mode==="mark")state.mark={q:qFromX(pt.x),p:pFromY(pt.y)};
+  else if(state.mode==="markQd")state.qdMark=qFromX(pt.x);
+  else if(state.mode==="markQs")state.qsMark=qFromX(pt.x);
+  else return;
+  draw();
+ });
+ overlay.addEventListener("keydown",e=>{
+  if(e.key!=="Enter"&&e.key!==" ")return;
+  e.preventDefault();
+  if(state.mode==="mark")state.mark=eqPoint();
+  else if(state.mode==="markQd")state.qdMark=80-current().price;
+  else if(state.mode==="markQs")state.qsMark=current().price-20;
+  draw();
+ });
+}
+function addQuantityMark(q,label,color,correct){
+ const t=current(),px=x(q),py=y(t.price);
+ const g=node("g");
+ line(g,px,dims.b,px,py,{stroke:color,"stroke-width":correct?"3":"2","stroke-dasharray":correct?"":"5 4",opacity:correct?"1":".75"});
+ g.append(node("circle",{cx:px,cy:py,r:correct?7:6,fill:correct?color:"#fff",stroke:color,"stroke-width":"3"}));
+ const labelY=dims.b+(correct?72:42),labelWidth=correct?82:76;
+ g.append(node("rect",{x:px-labelWidth/2,y:labelY-16,width:labelWidth,height:22,rx:5,fill:"#fff",stroke:color}));
+ text(g,px,labelY,label,{"text-anchor":"middle","font-size":"13","font-weight":"800",fill:color});
+ svg.append(g);
+}
+function addImbalanceBracket(q1,q2,label){
+ const left=Math.min(x(q1),x(q2)),right=Math.max(x(q1),x(q2)),py=y(current().price)+23,g=node("g");
+ line(g,left,py,right,py,{stroke:colors.price,"stroke-width":"3"});
+ line(g,left,py-7,left,py+7,{stroke:colors.price,"stroke-width":"3"});
+ line(g,right,py-7,right,py+7,{stroke:colors.price,"stroke-width":"3"});
+ g.append(node("rect",{x:(left+right)/2-58,y:py-17,width:116,height:22,rx:5,fill:"#fff",stroke:colors.price}));
+ text(g,(left+right)/2,py-1,label,{"text-anchor":"middle","font-size":"13","font-weight":"800",fill:"#7c5700"});
+ svg.append(g);
+}
+function addHandle(curve,p,shift){
+ const q=curveQ(curve,p,shift),cx=x(q),cy=y(p),color=curve==="d"?colors.d:colors.s;
+ const g=node("g",{class:"drag-handle",tabindex:"0",role:"button","aria-label":"Drag "+(curve==="d"?"demand":"supply")+" curve left or right"});
+ g.append(node("circle",{cx,cy,r:13,fill:"#fff",stroke:color,"stroke-width":"4"}));
+ g.append(node("path",{d:"M "+(cx-5)+" "+cy+" L "+(cx+5)+" "+cy+" M "+(cx-5)+" "+cy+" L "+(cx-1)+" "+(cy-4)+" M "+(cx-5)+" "+cy+" L "+(cx-1)+" "+(cy+4)+" M "+(cx+5)+" "+cy+" L "+(cx+1)+" "+(cy-4)+" M "+(cx+5)+" "+cy+" L "+(cx+1)+" "+(cy+4),stroke:color,"stroke-width":"2",fill:"none"}));
+ svg.append(g);
+ g.addEventListener("pointerdown",e=>{state.drag={curve,startQ:qFromX(svgPoint(e).x),startShift:curve==="d"?state.dShift:state.sShift};svg.setPointerCapture(e.pointerId);state.mode="drag";renderModes()});
+ g.addEventListener("keydown",e=>{if(e.key==="ArrowLeft"||e.key==="ArrowRight"){e.preventDefault();const delta=e.key==="ArrowRight"?2:-2;if(curve==="d")state.dShift=Math.max(-15,Math.min(15,state.dShift+delta));else state.sShift=Math.max(-15,Math.min(15,state.sShift+delta));draw()}});
+}
+svg.addEventListener("pointermove",e=>{
+ if(!state.drag)return;
+ const dq=qFromX(svgPoint(e).x)-state.drag.startQ;
+ const val=Math.max(-15,Math.min(15,state.drag.startShift+dq));
+ if(state.drag.curve==="d")state.dShift=val;else state.sShift=val;
+ draw();
+});
+svg.addEventListener("pointerup",e=>{if(!state.drag)return;state.drag=null;if(svg.hasPointerCapture(e.pointerId))svg.releasePointerCapture(e.pointerId);state.mode="drag";renderModes();draw()});
+function addEq(q,p,label,original){
+ if(q<0||q>60||p<0||p>100)return;const g=node("g");
+ g.append(node("circle",{cx:x(q),cy:y(p),r:original?6:7,fill:original?"#fff":colors.eq,stroke:colors.eq,"stroke-width":"3"}));
+ const tx=x(q)+12,ty=y(p)+(original?18:-12);
+ g.append(node("rect",{x:tx-5,y:ty-15,width:label.length*7+10,height:21,rx:5,fill:"#fff",stroke:original?"#93a0b3":colors.eq}));
+ text(g,tx,ty,label,{"font-size":"13","font-weight":"800",fill:original?"#5d6980":colors.eq});svg.append(g);
+}
+function svgPoint(e){const pt=svg.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;return pt.matrixTransform(svg.getScreenCTM().inverse())}
+function renderModes(){
+ const t=current(),box=el("modeControls");box.replaceChildren();
+ if(t.type==="equilibrium"){
+  box.innerHTML='<button class="mode active" type="button">Click to mark equilibrium</button>';
+ }else if(t.type==="imbalance"){
+  const qd=document.createElement("button");qd.className="mode "+(state.mode==="markQd"?"active":"");qd.textContent="1. Mark Qd";qd.onclick=()=>{state.mode="markQd";renderModes();draw()};
+  const qs=document.createElement("button");qs.className="mode "+(state.mode==="markQs"?"active":"");qs.textContent="2. Mark Qs";qs.onclick=()=>{state.mode="markQs";renderModes();draw()};
+  box.append(qd,qs);
+ }else if(t.type==="shift"||t.type==="both"){
+  const drag=document.createElement("button");drag.className="mode "+(state.mode==="drag"?"active":"");drag.textContent="1. Drag curve"+(t.type==="both"?"s":"");drag.onclick=()=>{state.mode="drag";renderModes();draw()};
+  const mark=document.createElement("button");mark.className="mode "+(state.mode==="mark"?"active":"");mark.textContent="2. Mark new equilibrium";mark.onclick=()=>{state.mode="mark";renderModes();draw()};
+  box.append(drag,mark);
+ }
+}
+function renderAnswer(){
+ const t=current(),box=el("answerBox");box.replaceChildren();
+ if(t.type==="equilibrium"){
+  box.innerHTML="<strong>Your graph is your answer.</strong><p class='hint'>Click the intersection of the two curves. A green point labeled “Your E” will appear.</p>";
+ }else if(t.type==="imbalance"){
+  box.innerHTML='<div class="row"><div class="field"><label for="qd">Quantity demanded</label><input id="qd" type="number" inputmode="decimal"></div><div class="field"><label for="qs">Quantity supplied</label><input id="qs" type="number" inputmode="decimal"></div></div><div class="row"><div class="field"><label for="kind">Market result</label><select id="kind"><option value="">Choose one</option><option value="shortage">Shortage</option><option value="surplus">Surplus</option><option value="equilibrium">Equilibrium</option></select></div><div class="field"><label for="amount">Shortage or surplus amount</label><input id="amount" type="number" inputmode="decimal"></div></div>';
+ }else if(t.type==="both"){
+  box.innerHTML='<div class="concept-note"><strong>Why magnitude matters:</strong> When demand and supply shift in the same direction, the change in equilibrium quantity is clear, but the change in price depends on which curve shifts farther. When they shift in opposite directions, the change in price is clear, but the change in quantity depends on which curve shifts farther.</div><strong>Your graph is part of your answer.</strong><p class="hint">Drag both curves, mark the new intersection, then use your completed graph to answer.</p><div class="row"><div class="field"><label for="priceChange">Equilibrium price</label><select id="priceChange"><option value="">Choose one</option><option value="higher">Higher</option><option value="lower">Lower</option><option value="same">Unchanged</option></select></div><div class="field"><label for="quantityChange">Equilibrium quantity</label><select id="quantityChange"><option value="">Choose one</option><option value="higher">Higher</option><option value="lower">Lower</option><option value="same">Unchanged</option></select></div></div>';
+ }else{
+  box.innerHTML="<strong>Your graph is your answer.</strong><p class='hint'>First drag the required curve handle. Then choose <strong>Mark new equilibrium</strong> and click the new intersection.</p>";
+ }
+}
+function changeWord(value,baseline){
+ return value>baseline+.5?"higher":value<baseline-.5?"lower":"same";
+}
+function magnitudeExplanation(t){
+ if(t.dDir===t.sDir){
+  return "Because demand and supply moved in the same direction, equilibrium quantity has a definite direction. The price outcome depends on the relative magnitude of the two shifts.";
+ }
+ return "Because demand and supply moved in opposite directions, equilibrium price has a definite direction. The quantity outcome depends on the relative magnitude of the two shifts.";
+}
+function renderTask(){
+ const t=current();state.checked=false;state.dShift=0;state.sShift=0;state.mark=null;state.qdMark=null;state.qsMark=null;state.mode=t.type==="equilibrium"?"mark":t.type==="imbalance"?"markQd":"drag";
+ el("progressText").textContent="Question "+(state.index+1)+" of "+state.tasks.length;el("topicText").textContent=t.topic;el("progressBar").style.width=(state.index/state.tasks.length*100)+"%";
+ el("taskType").textContent=t.market+" market";el("taskTitle").textContent=t.title;el("scenario").textContent=t.scenario;el("graphTitle").textContent=t.market+": price and quantity";
+ let steps=[];
+ if(t.type==="equilibrium")steps=["Find the point where the demand and supply curves cross.","Click that point to mark the equilibrium.","Check your answer."];
+ else if(t.type==="imbalance")steps=["Follow the horizontal price line to the blue demand curve. Read the quantity directly below that intersection and mark Qd.","Follow the same price line to the red supply curve. Read the quantity directly below that intersection and mark Qs.","Enter the two quantities you read from the graph. Choose shortage or surplus, then find the difference between Qd and Qs."];
+ else if(t.type==="shift")steps=["Decide whether the event shifts "+(t.curve==="d"?"demand":"supply")+" left or right.","Drag the white handle on that curve. Any clear shift in the correct direction works.","Select “Mark new equilibrium,” then click the new intersection."];
+ else steps=["Decide how both demand and supply change.","Drag each white curve handle left or right. Any clear shifts in the correct directions work.","Select “Mark new equilibrium,” then click the new intersection.","Use the equilibrium you created to identify how price and quantity changed. Remember that one outcome may depend on the relative magnitude of the shifts."];
+ el("steps").innerHTML=steps.map(s=>"<li>"+s+"</li>").join("");
+ el("feedback").className="feedback";el("feedback").innerHTML="Follow the steps, then choose <strong>Check answer</strong>.";
+ el("nextBtn").disabled=true;el("nextBtn").textContent=state.index===state.tasks.length-1?"See results":"Next question";
+ renderAnswer();renderModes();renderLegend();draw();
+ el("graphHint").innerHTML=t.type==="imbalance"?"Select Mark Qd or Mark Qs, then click where the given price line crosses the matching curve. The correct price and quantities are labeled after checking.":t.type==="equilibrium"?"Click where the blue demand curve and red supply curve intersect.":"Dashed curves show the original positions. Solid curves show your positions. Drag horizontally; the exact distance is not graded.";
+}
+function renderLegend(){
+ const t=current(),items=[];
+ items.push(["d","Demand"],["s","Supply"]);
+ if(t.type==="shift"||t.type==="both")items.push(["base","Dashed = original"]);
+ el("legend").innerHTML=items.map(([c,n])=>'<span class="legend-item"><i class="swatch '+c+'" style="border-color:'+(c==="d"?colors.d:c==="s"?colors.s:"#78869a")+'"></i>'+n+"</span>").join("");
+}
+function near(a,b,tol=4){return Math.abs(a-b)<=tol}
+function check(){
+ if(state.checked)return;const t=current();let ok=false,why="";
+ if(t.type==="equilibrium"){
+  if(!state.mark){why="Place an equilibrium point on the graph first."}
+  else{ok=near(state.mark.q,30)&&near(state.mark.p,50);why=ok?"Correct. The equilibrium is Q = 30 and P = 50.":"The equilibrium is where the two curves cross: Q = 30 and P = 50."}
+ }else if(t.type==="imbalance"){
+  const qd=Number(el("qd").value),qs=Number(el("qs").value),kind=el("kind").value,amount=Number(el("amount").value);
+  const aqd=80-t.price,aqs=t.price-20,ak=aqd>aqs?"shortage":"surplus",aa=Math.abs(aqd-aqs);
+  const marksOK=state.qdMark!==null&&state.qsMark!==null&&near(state.qdMark,aqd,3)&&near(state.qsMark,aqs,3);
+  ok=qd===aqd&&qs===aqs&&kind===ak&&amount===aa&&marksOK;
+  why=ok?"Correct: Qd = "+aqd+", Qs = "+aqs+", so the market has a "+ak+" of "+aa+".":"Check both graph markers and calculations. At this price, Qd = "+aqd+" and Qs = "+aqs+", so the "+ak+" is "+aa+".";
+ }else{
+  const dExpected=t.type==="both"?t.dDir:(t.curve==="d"?t.dir:null),sExpected=t.type==="both"?t.sDir:(t.curve==="s"?t.dir:null);
+  const dOK=!dExpected||(dExpected==="up"?state.dShift>4:state.dShift<-4),sOK=!sExpected||(sExpected==="up"?state.sShift>4:state.sShift<-4);
+  const e=eqPoint(),markOK=state.mark&&near(state.mark.q,e.q,4)&&near(state.mark.p,e.p,5);
+  const ePrice=changeWord(e.p,50),eQuantity=changeWord(e.q,30);
+  const outcomeOK=t.type!=="both"||(el("priceChange").value===ePrice&&el("quantityChange").value===eQuantity);
+  ok=dOK&&sOK&&markOK&&outcomeOK;
+  const words=[];if(dExpected)words.push("demand "+(dExpected==="up"?"right":"left"));if(sExpected)words.push("supply "+(sExpected==="up"?"right":"left"));
+  if(t.type==="both"){
+   why=(ok?"Correct. ":"Review your curve directions, equilibrium point, and price and quantity choices. ")+"With the magnitudes you drew, equilibrium price is "+ePrice+" and equilibrium quantity is "+eQuantity+". "+magnitudeExplanation(t);
+  }else{
+   why=ok?"Correct: "+words.join(" and ")+" creates the new equilibrium you marked.":"Expected shift: "+words.join(" and ")+". After shifting, mark the intersection of the solid curves.";
+  }
+ }
+ state.checked=true;state.answers[state.index]={ok,topic:t.topic,title:t.title};draw();
+ el("feedback").className="feedback "+(ok?"good":"bad");el("feedback").textContent=why;el("nextBtn").disabled=false;el("scoreChip").textContent=state.answers.filter(a=>a&&a.ok).length+" / "+state.tasks.length;
+}
+function resetQuestion(){renderTask()}
+function next(){
+ if(state.index<state.tasks.length-1){state.index++;renderTask()}else showSummary();
+}
+function showSummary(){
+ el("practice").style.display="none";el("summary").classList.add("open");el("progressText").textContent="Complete";el("topicText").textContent="Results";el("progressBar").style.width="100%";
+ const correct=state.answers.filter(a=>a&&a.ok).length,pct=Math.round(correct/state.tasks.length*100);el("scoreRing").style.setProperty("--pct",pct+"%");el("finalScore").textContent=pct+"%";el("scoreChip").textContent=correct+" / "+state.tasks.length;
+ el("summaryText").textContent=(el("studentName").value.trim()?el("studentName").value.trim()+", y":"Y")+"ou answered "+correct+" of "+state.tasks.length+" questions correctly.";
+ el("review").innerHTML=state.answers.map((a,i)=>'<div class="review-item"><span>'+(i+1)+". "+a.title+"</span><strong style='color:"+(a.ok?"var(--green)":"var(--bad)")+"'>"+(a.ok?"Correct":"Review")+"</strong></div>").join("");
+}
+function newSet(){
+ state.tasks=makeTasks();state.index=0;state.answers=[];el("activityCode").textContent=code();el("scoreChip").textContent="Not scored";el("practice").style.display="grid";el("summary").classList.remove("open");renderTask();
+}
+el("checkBtn").onclick=check;el("nextBtn").onclick=next;el("resetTaskBtn").onclick=resetQuestion;el("newSetBtn").onclick=newSet;el("printBtn").onclick=()=>window.print();
+newSet();
+</script>
+</body>
+</html>
