@@ -225,8 +225,8 @@ function draw(){
   line(plot,dims.l,y(t.price),dims.r,y(t.price),{stroke:colors.price,"stroke-width":"3","stroke-dasharray":"6 5"});
   text(svg,dims.r-4,y(t.price)-10,"Given price: $"+t.price,{"text-anchor":"end","font-size":"14","font-weight":"800",fill:"#7c5700"});
   const actualQd=80-t.price,actualQs=t.price-20;
-  if(state.qdMark!==null&&!(state.checked&&near(state.qdMark,actualQd,3)))addQuantityMark(state.qdMark,"Your Qd",colors.d,false);
-  if(state.qsMark!==null&&!(state.checked&&near(state.qsMark,actualQs,3)))addQuantityMark(state.qsMark,"Your Qs",colors.s,false);
+  if(state.qdMark!==null&&!(state.checked&&quantityMarkIsCorrect(state.qdMark,actualQd)))addQuantityMark(state.qdMark,"Your Qd",colors.d,false);
+  if(state.qsMark!==null&&!(state.checked&&quantityMarkIsCorrect(state.qsMark,actualQs)))addQuantityMark(state.qsMark,"Your Qs",colors.s,false);
   if(state.checked){
    addQuantityMark(actualQd,"Qd = "+actualQd,colors.d,true);
    addQuantityMark(actualQs,"Qs = "+actualQs,colors.s,true);
@@ -234,7 +234,7 @@ function draw(){
   }
  }
  if(t.type==="shift"||t.type==="both"){
-  const e=eqPoint(),studentIsCorrect=state.mark&&near(state.mark.q,e.q,4)&&near(state.mark.p,e.p,5);
+  const e=eqPoint(),studentIsCorrect=state.mark&&pointMarkIsCorrect(state.mark,e.q,e.p);
   if(state.mark&&!(state.checked&&studentIsCorrect))addEq(state.mark.q,state.mark.p,"Your E",false);
   if(state.checked)addEq(e.q,e.p,"Correct E",false);
  }
@@ -357,28 +357,52 @@ function renderLegend(){
  if(t.type==="shift"||t.type==="both")items.push(["base","Dashed = original"]);
  el("legend").innerHTML=items.map(([c,n])=>'<span class="legend-item"><i class="swatch '+c+'" style="border-color:'+(c==="d"?colors.d:c==="s"?colors.s:"#78869a")+'"></i>'+n+"</span>").join("");
 }
-function near(a,b,tol=4){return Math.abs(a-b)<=tol}
+function quantityMarkIsCorrect(markedQ,correctQ){
+ return Math.abs(x(markedQ)-x(correctQ))<=14;
+}
+function pointMarkIsCorrect(mark,correctQ,correctP){
+ const dx=x(mark.q)-x(correctQ),dy=y(mark.p)-y(correctP);
+ return Math.hypot(dx,dy)<=18;
+}
 function check(){
  if(state.checked)return;const t=current();let ok=false,why="";
  if(t.type==="equilibrium"){
   if(!state.mark){why="Place an equilibrium point on the graph first."}
-  else{ok=near(state.mark.q,30)&&near(state.mark.p,50);why=ok?"Correct. The equilibrium is Q = 30 and P = 50.":"The equilibrium is where the two curves cross: Q = 30 and P = 50."}
+  else{ok=pointMarkIsCorrect(state.mark,30,50);why=ok?"Correct. The equilibrium is Q = 30 and P = 50.":"Your point is not close enough to the intersection. The equilibrium is Q = 30 and P = 50."}
  }else if(t.type==="imbalance"){
   const qd=Number(el("qd").value),qs=Number(el("qs").value),kind=el("kind").value,amount=Number(el("amount").value);
   const aqd=80-t.price,aqs=t.price-20,ak=aqd>aqs?"shortage":"surplus",aa=Math.abs(aqd-aqs);
-  const marksOK=state.qdMark!==null&&state.qsMark!==null&&near(state.qdMark,aqd,3)&&near(state.qsMark,aqs,3);
-  ok=qd===aqd&&qs===aqs&&kind===ak&&amount===aa&&marksOK;
-  why=ok?"Correct: Qd = "+aqd+", Qs = "+aqs+", so the market has a "+ak+" of "+aa+".":"Check both graph markers and calculations. At this price, Qd = "+aqd+" and Qs = "+aqs+", so the "+ak+" is "+aa+".";
+  const qdMarkOK=state.qdMark!==null&&quantityMarkIsCorrect(state.qdMark,aqd);
+  const qsMarkOK=state.qsMark!==null&&quantityMarkIsCorrect(state.qsMark,aqs);
+  const marksOK=qdMarkOK&&qsMarkOK;
+  const calculationsOK=qd===aqd&&qs===aqs&&kind===ak&&amount===aa;
+  ok=calculationsOK&&marksOK;
+  if(ok){
+   why="Correct: Qd = "+aqd+", Qs = "+aqs+", so the market has a "+ak+" of "+aa+".";
+  }else if(calculationsOK&&!marksOK){
+   const wrongMarks=[];if(!qdMarkOK)wrongMarks.push("Qd");if(!qsMarkOK)wrongMarks.push("Qs");
+   why="Your calculations are correct, but your "+wrongMarks.join(" and ")+" graph marker"+(wrongMarks.length>1?"s are":" is")+" incorrect. Place each marker exactly where the price line crosses its curve.";
+  }else if(!calculationsOK&&marksOK){
+   why="Your graph markers are correct, but one or more calculated answers are incorrect. The graph shows Qd = "+aqd+" and Qs = "+aqs+", giving a "+ak+" of "+aa+".";
+  }else{
+   why="Both the graph markers and one or more calculated answers need correction. The graph shows Qd = "+aqd+" and Qs = "+aqs+", giving a "+ak+" of "+aa+".";
+  }
  }else{
   const dExpected=t.type==="both"?t.dDir:(t.curve==="d"?t.dir:null),sExpected=t.type==="both"?t.sDir:(t.curve==="s"?t.dir:null);
   const dOK=!dExpected||(dExpected==="up"?state.dShift>4:state.dShift<-4),sOK=!sExpected||(sExpected==="up"?state.sShift>4:state.sShift<-4);
-  const e=eqPoint(),markOK=state.mark&&near(state.mark.q,e.q,4)&&near(state.mark.p,e.p,5);
+  const e=eqPoint(),markOK=state.mark&&pointMarkIsCorrect(state.mark,e.q,e.p);
   const ePrice=changeWord(e.p,50),eQuantity=changeWord(e.q,30);
   const outcomeOK=t.type!=="both"||(el("priceChange").value===ePrice&&el("quantityChange").value===eQuantity);
   ok=dOK&&sOK&&markOK&&outcomeOK;
   const words=[];if(dExpected)words.push("demand "+(dExpected==="up"?"right":"left"));if(sExpected)words.push("supply "+(sExpected==="up"?"right":"left"));
   if(t.type==="both"){
-   why=(ok?"Correct. ":"Review your curve directions, equilibrium point, and price and quantity choices. ")+"With the magnitudes you drew, equilibrium price is "+ePrice+" and equilibrium quantity is "+eQuantity+". "+magnitudeExplanation(t);
+   if(ok){
+    why="Correct. With the magnitudes you drew, equilibrium price is "+ePrice+" and equilibrium quantity is "+eQuantity+". "+magnitudeExplanation(t);
+   }else if(dOK&&sOK&&outcomeOK&&!markOK){
+    why="Your curve shifts and price and quantity answers are correct, but your new equilibrium marker is incorrect. Place it exactly where the two solid curves intersect. "+magnitudeExplanation(t);
+   }else{
+    why="Review your curve directions, equilibrium point, and price and quantity choices. With the magnitudes you drew, equilibrium price is "+ePrice+" and equilibrium quantity is "+eQuantity+". "+magnitudeExplanation(t);
+   }
   }else{
    why=ok?"Correct: "+words.join(" and ")+" creates the new equilibrium you marked.":"Expected shift: "+words.join(" and ")+". After shifting, mark the intersection of the solid curves.";
   }
