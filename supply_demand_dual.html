@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Supply &amp; Demand — Shifting Equilibrium</title>
+<style>
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:#ffffff;
+    font-family: Georgia, 'Iowan Old Style', serif;
+    color:#1c2a3a;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding:32px 16px 48px;
+  }
+  .stage{ display:flex; gap:32px; flex-wrap:wrap; justify-content:center; align-items:flex-start; }
+  .graphUnit{ display:flex; flex-direction:column; align-items:center; }
+  .card{ background:#fff; border:1px solid #e3e0d8; border-radius:3px; box-shadow:0 1px 2px rgba(20,20,10,0.04); padding:14px 14px 6px; }
+  svg{ display:block; touch-action:none; }
+  .handle{ cursor: ns-resize; }
+  button{
+    margin-top:14px; padding:9px 16px; background:#1c2a3a; color:#fbfaf6;
+    border:none; border-radius:2px; font-family: Helvetica, Arial, sans-serif;
+    font-size:12.5px; letter-spacing:0.3px; cursor:pointer;
+  }
+  button:hover{ background:#2c3e50; }
+</style>
+</head>
+<body>
+
+<div class="stage">
+  <div class="graphUnit">
+    <div class="card"><svg id="chart1" width="480" height="480" viewBox="0 0 480 480"></svg></div>
+    <button id="resetBtn1">Reset S<sub>2</sub> &amp; D<sub>2</sub></button>
+  </div>
+  <div class="graphUnit">
+    <div class="card"><svg id="chart2" width="480" height="480" viewBox="0 0 480 480"></svg></div>
+    <button id="resetBtn2">Reset S<sub>2</sub> &amp; D<sub>2</sub></button>
+  </div>
+</div>
+
+<script>
+function initSupplyDemandGraph(svg, resetBtn){
+  const svgNS = "http://www.w3.org/2000/svg";
+
+  const COLORS = { s1:'#c1272d', d1:'#1f5fa8', s2:'#c1272d', d2:'#1f5fa8', e1:'#4a4a4a', e2:'#1c1c1c' };
+  const ARROW_COLOR_UP = '#2f8f46';
+  const ARROW_COLOR_DOWN = '#d9822b';
+
+  const M = {left:60, right:22, top:22, bottom:52};
+  const W = parseFloat(svg.getAttribute('width')), H = parseFloat(svg.getAttribute('height'));
+  const plotW = W - M.left - M.right;
+  const plotH = H - M.top - M.bottom;
+  const DMAX = 100;
+
+  function xPix(q){ return M.left + (q/DMAX)*plotW; }
+  function yPix(p){ return (H - M.bottom) - (p/DMAX)*plotH; }
+  function pixToPrice(y){ return ((H - M.bottom) - y) / plotH * DMAX; }
+
+  // Lines stored as P = a + b*Q
+  const initial = {
+    s1:{a:8,  b:0.8},
+    d1:{a:92, b:-0.8},
+    s2:{a:8,  b:0.8},
+    d2:{a:92, b:-0.8}
+  };
+  let lines = JSON.parse(JSON.stringify(initial));
+
+  function priceAt(line, q){ return line.a + line.b*q; }
+
+  function qRangeForP0to100(line){
+    const qs = [];
+    if (line.b !== 0){
+      qs.push((0 - line.a)/line.b);
+      qs.push((100 - line.a)/line.b);
+    }
+    let lo = Math.max(0, Math.min(...qs, 100));
+    let hi = Math.min(100, Math.max(...qs, 0));
+    if (lo > hi) { const t=lo; lo=hi; hi=t; }
+    return [lo, hi];
+  }
+
+  function intersect(supply, demand){
+    const denom = supply.b - demand.b;
+    if (Math.abs(denom) < 1e-9) return null;
+    const q = (demand.a - supply.a) / denom;
+    const p = supply.a + supply.b*q;
+    return {q,p};
+  }
+
+  // ---- static skeleton ----
+  const defs = document.createElementNS(svgNS,'defs');
+  const clip = document.createElementNS(svgNS,'clipPath');
+  const clipId = 'plotClip-' + Math.random().toString(36).slice(2);
+  clip.setAttribute('id', clipId);
+  const clipRect = document.createElementNS(svgNS,'rect');
+  clipRect.setAttribute('x', M.left); clipRect.setAttribute('y', M.top);
+  clipRect.setAttribute('width', plotW); clipRect.setAttribute('height', plotH);
+  clip.appendChild(clipRect);
+  defs.appendChild(clip);
+  svg.appendChild(defs);
+
+  const axisG = document.createElementNS(svgNS,'g');
+  function axisLine(x1,y1,x2,y2){
+    const l = document.createElementNS(svgNS,'line');
+    l.setAttribute('x1',x1); l.setAttribute('y1',y1);
+    l.setAttribute('x2',x2); l.setAttribute('y2',y2);
+    l.setAttribute('stroke','#4a5a6a'); l.setAttribute('stroke-width',1.4);
+    axisG.appendChild(l);
+  }
+  axisLine(M.left, H-M.bottom, W-M.right, H-M.bottom);
+  axisLine(M.left, M.top, M.left, H-M.bottom);
+  svg.appendChild(axisG);
+
+  function addText(x,y,txt,opts={}){
+    const t = document.createElementNS(svgNS,'text');
+    t.setAttribute('x',x); t.setAttribute('y',y);
+    t.setAttribute('font-family', 'Helvetica, Arial, sans-serif');
+    t.setAttribute('font-size', opts.size || 11);
+    t.setAttribute('fill', opts.fill || '#5b6a72');
+    t.setAttribute('text-anchor', opts.anchor || 'start');
+    if(opts.weight) t.setAttribute('font-weight', opts.weight);
+    t.textContent = txt;
+    return t;
+  }
+
+  function addSubText(x,y,letter,digit,opts={}){
+    const t = document.createElementNS(svgNS,'text');
+    t.setAttribute('x',x); t.setAttribute('y',y);
+    t.setAttribute('font-family', 'Helvetica, Arial, sans-serif');
+    t.setAttribute('font-size', opts.size || 11);
+    t.setAttribute('fill', opts.fill || '#5b6a72');
+    t.setAttribute('text-anchor', opts.anchor || 'start');
+    if(opts.weight) t.setAttribute('font-weight', opts.weight);
+    const mainSpan = document.createElementNS(svgNS,'tspan');
+    mainSpan.textContent = letter;
+    t.appendChild(mainSpan);
+    const subSpan = document.createElementNS(svgNS,'tspan');
+    subSpan.setAttribute('baseline-shift','-25%');
+    subSpan.setAttribute('font-size', (opts.subSizeRatio || 0.85) + 'em');
+    subSpan.textContent = digit;
+    t.appendChild(subSpan);
+    return t;
+  }
+
+  svg.appendChild(addText(W-M.right, H-M.bottom+34, 'Quantity (Q)', {anchor:'end', size:12, fill:'#3c4a53', weight:700}));
+  const yLabel = addText(-M.top-plotH/2+130, 16, 'Price (P)', {anchor:'middle', size:12, fill:'#3c4a53', weight:700});
+  yLabel.setAttribute('transform','rotate(-90)');
+  svg.appendChild(yLabel);
+
+  const guideG = document.createElementNS(svgNS,'g'); guideG.setAttribute('clip-path', `url(#${clipId})`);
+  const lineG  = document.createElementNS(svgNS,'g'); lineG.setAttribute('clip-path', `url(#${clipId})`);
+  const pointG = document.createElementNS(svgNS,'g');
+  svg.appendChild(guideG); svg.appendChild(lineG); svg.appendChild(pointG);
+  const handleG = document.createElementNS(svgNS,'g');
+  svg.appendChild(handleG);
+  const labelG = document.createElementNS(svgNS,'g');
+  svg.appendChild(labelG);
+
+  function makePath(color, dashed, width){
+    const p = document.createElementNS(svgNS,'path');
+    p.setAttribute('stroke', color);
+    p.setAttribute('stroke-width', width);
+    p.setAttribute('fill','none');
+    if(dashed) p.setAttribute('stroke-dasharray','6,5');
+    return p;
+  }
+  const s1Path = makePath(COLORS.s1, false, 2);
+  const d1Path = makePath(COLORS.d1, false, 2);
+  const s2Path = makePath(COLORS.s2, false, 2.6);
+  const d2Path = makePath(COLORS.d2, false, 2.6);
+  lineG.appendChild(s1Path); lineG.appendChild(d1Path);
+  lineG.appendChild(s2Path); lineG.appendChild(d2Path);
+
+  function setLinePath(pathEl, line){
+    const [q0,q1] = qRangeForP0to100(line);
+    pathEl.setAttribute('d', `M ${xPix(q0)} ${yPix(priceAt(line,q0))} L ${xPix(q1)} ${yPix(priceAt(line,q1))}`);
+  }
+
+  const s1Lab = addSubText(0,0,'S','1',{fill:COLORS.s1, size:11, weight:700});
+  const d1Lab = addSubText(0,0,'D','1',{fill:COLORS.d1, size:11, weight:700});
+  const s2Lab = addSubText(0,0,'S','2',{fill:COLORS.s2, size:12, weight:700});
+  const d2Lab = addSubText(0,0,'D','2',{fill:COLORS.d2, size:12, weight:700});
+  [s1Lab,d1Lab,s2Lab,d2Lab].forEach(t=>labelG.appendChild(t));
+
+  function placeEndLabel(labEl, line){
+    const [q0,q1] = qRangeForP0to100(line);
+    const q = q1;
+    let x = xPix(q) + 8;
+    let y = yPix(priceAt(line,q)) + 4;
+    x = Math.min(x, W-M.right+18);
+    y = Math.max(M.top+10, Math.min(y, H-M.bottom-4));
+    labEl.setAttribute('x', x); labEl.setAttribute('y', y);
+  }
+
+  function makeGuide(color){
+    const l = document.createElementNS(svgNS,'line');
+    l.setAttribute('stroke', color);
+    l.setAttribute('stroke-width',1);
+    l.setAttribute('stroke-dasharray','3,4');
+    return l;
+  }
+  const g1x = makeGuide(COLORS.e1), g1y = makeGuide(COLORS.e1);
+  const g2x = makeGuide(COLORS.e2), g2y = makeGuide(COLORS.e2);
+  [g1x,g1y,g2x,g2y].forEach(g=>guideG.appendChild(g));
+
+  function circle(color, r){
+    const c = document.createElementNS(svgNS,'circle');
+    c.setAttribute('r', r);
+    c.setAttribute('fill', color);
+    c.setAttribute('stroke', '#fff');
+    c.setAttribute('stroke-width', 1.5);
+    return c;
+  }
+  const e1dot = circle(COLORS.e1, 5);
+  const e2dot = circle(COLORS.e2, 5.5);
+  pointG.appendChild(e1dot); pointG.appendChild(e2dot);
+
+  const q1Tick = addSubText(0,0,'Q','1',{anchor:'middle', fill:COLORS.e1, size:10.5, weight:700});
+  const q2Tick = addSubText(0,0,'Q','2',{anchor:'middle', fill:COLORS.e2, size:10.5, weight:700});
+  const p1Tick = addSubText(0,0,'P','1',{anchor:'end', fill:COLORS.e1, size:10.5, weight:700});
+  const p2Tick = addSubText(0,0,'P','2',{anchor:'end', fill:COLORS.e2, size:10.5, weight:700});
+  [q1Tick,q2Tick,p1Tick,p2Tick].forEach(t=>svg.appendChild(t));
+
+  const e1Lab = addSubText(0,0,'E','1',{fill:COLORS.e1, size:12, weight:700});
+  const e2Lab = addSubText(0,0,'E','2',{fill:COLORS.e2, size:12, weight:700});
+  svg.appendChild(e1Lab); svg.appendChild(e2Lab);
+
+  // ---- Price-change arrow ----
+  const arrowX = M.left - 36;
+  const arrowLine = document.createElementNS(svgNS,'line');
+  arrowLine.setAttribute('stroke-width', 2.2);
+  arrowLine.setAttribute('stroke-linecap','round');
+  const arrowHead = document.createElementNS(svgNS,'polygon');
+  svg.appendChild(arrowLine);
+  svg.appendChild(arrowHead);
+
+  function updatePriceArrow(p1, p2){
+    const valid = isFinite(p1) && isFinite(p2) && Math.abs(p2-p1) > 0.4;
+    if(!valid){
+      arrowLine.setAttribute('opacity',0);
+      arrowHead.setAttribute('opacity',0);
+      return;
+    }
+    arrowLine.setAttribute('opacity',1);
+    arrowHead.setAttribute('opacity',1);
+
+    const y1 = yPix(clampP(p1));
+    const y2 = yPix(clampP(p2));
+    const goingUp = y2 < y1;
+    const color = goingUp ? ARROW_COLOR_UP : ARROW_COLOR_DOWN;
+    const dir = goingUp ? -1 : 1;
+    const headLen = 8, headWidth = 5.5;
+
+    const lineEndY = y2 - dir*headLen;
+    arrowLine.setAttribute('x1', arrowX); arrowLine.setAttribute('y1', y1);
+    arrowLine.setAttribute('x2', arrowX); arrowLine.setAttribute('y2', lineEndY);
+    arrowLine.setAttribute('stroke', color);
+
+    const tipY = y2;
+    const baseY = y2 - dir*headLen;
+    arrowHead.setAttribute('points',
+      `${arrowX},${tipY} ${arrowX-headWidth},${baseY} ${arrowX+headWidth},${baseY}`
+    );
+    arrowHead.setAttribute('fill', color);
+  }
+
+  // ---- Quantity-change arrow ----
+  const qArrowY = H - M.bottom + 36;
+  const qArrowLine = document.createElementNS(svgNS,'line');
+  qArrowLine.setAttribute('stroke-width', 2.2);
+  qArrowLine.setAttribute('stroke-linecap','round');
+  const qArrowHead = document.createElementNS(svgNS,'polygon');
+  svg.appendChild(qArrowLine);
+  svg.appendChild(qArrowHead);
+
+  function updateQuantityArrow(q1, q2){
+    const valid = isFinite(q1) && isFinite(q2) && Math.abs(q2-q1) > 0.4;
+    if(!valid){
+      qArrowLine.setAttribute('opacity',0);
+      qArrowHead.setAttribute('opacity',0);
+      return;
+    }
+    qArrowLine.setAttribute('opacity',1);
+    qArrowHead.setAttribute('opacity',1);
+
+    const x1 = xPix(clampQ(q1));
+    const x2 = xPix(clampQ(q2));
+    const goingRight = x2 > x1;
+    const color = goingRight ? ARROW_COLOR_UP : ARROW_COLOR_DOWN;
+    const dir = goingRight ? 1 : -1;
+    const headLen = 8, headWidth = 5.5;
+
+    const lineEndX = x2 - dir*headLen;
+    qArrowLine.setAttribute('y1', qArrowY); qArrowLine.setAttribute('x1', x1);
+    qArrowLine.setAttribute('y2', qArrowY); qArrowLine.setAttribute('x2', lineEndX);
+    qArrowLine.setAttribute('stroke', color);
+
+    const tipX = x2;
+    const baseX = x2 - dir*headLen;
+    qArrowHead.setAttribute('points',
+      `${tipX},${qArrowY} ${baseX},${qArrowY-headWidth} ${baseX},${qArrowY+headWidth}`
+    );
+    qArrowHead.setAttribute('fill', color);
+  }
+
+  // wide, invisible stroke on top of the S2/D2 lines so the whole curve is draggable
+  function makeDragHit(){
+    const p = document.createElementNS(svgNS,'path');
+    p.setAttribute('stroke', 'transparent');
+    p.setAttribute('stroke-width', 22);
+    p.setAttribute('fill','none');
+    p.setAttribute('class','handle');
+    return p;
+  }
+  const s2DragHit = makeDragHit();
+  const d2DragHit = makeDragHit();
+  handleG.appendChild(s2DragHit);
+  handleG.appendChild(d2DragHit);
+
+  function clampP(p){ return Math.max(0, Math.min(100,p)); }
+  function clampQ(q){ return Math.max(0, Math.min(100,q)); }
+
+  function updateEq(e, dot, gx, gy, qTick, pTick, eLab){
+    if(!e || e.q < -1 || e.q > 101 || e.p < -1 || e.p > 101){
+      dot.setAttribute('opacity',0);
+      gx.setAttribute('opacity',0); gy.setAttribute('opacity',0);
+      qTick.setAttribute('opacity',0); pTick.setAttribute('opacity',0);
+      eLab.setAttribute('opacity',0);
+      return;
+    }
+    const q = clampQ(e.q), p = clampP(e.p);
+    dot.setAttribute('opacity',1);
+    gx.setAttribute('opacity',1); gy.setAttribute('opacity',1);
+    qTick.setAttribute('opacity',1); pTick.setAttribute('opacity',1);
+    eLab.setAttribute('opacity',1);
+
+    const x = xPix(q), y = yPix(p);
+    dot.setAttribute('cx', x); dot.setAttribute('cy', y);
+
+    gx.setAttribute('x1', x); gx.setAttribute('x2', x);
+    gx.setAttribute('y1', y); gx.setAttribute('y2', H-M.bottom);
+
+    gy.setAttribute('x1', M.left); gy.setAttribute('x2', x);
+    gy.setAttribute('y1', y); gy.setAttribute('y2', y);
+
+    qTick.setAttribute('x', x); qTick.setAttribute('y', H-M.bottom+30);
+    pTick.setAttribute('x', M.left-22); pTick.setAttribute('y', y+4);
+
+    eLab.setAttribute('x', x);
+    eLab.setAttribute('text-anchor', 'middle');
+    eLab.setAttribute('y', y - 11);
+  }
+
+  function render(){
+    setLinePath(s1Path, lines.s1);
+    setLinePath(d1Path, lines.d1);
+    setLinePath(s2Path, lines.s2);
+    setLinePath(d2Path, lines.d2);
+
+    placeEndLabel(s1Lab, lines.s1);
+    placeEndLabel(d1Lab, lines.d1);
+    placeEndLabel(s2Lab, lines.s2);
+    placeEndLabel(d2Lab, lines.d2);
+
+    setLinePath(s2DragHit, lines.s2);
+    setLinePath(d2DragHit, lines.d2);
+
+    const e1 = intersect(lines.s1, lines.d1);
+    const e2 = intersect(lines.s2, lines.d2);
+    updateEq(e1, e1dot, g1x, g1y, q1Tick, p1Tick, e1Lab);
+    updateEq(e2, e2dot, g2x, g2y, q2Tick, p2Tick, e2Lab);
+    updatePriceArrow(e1 ? e1.p : NaN, e2 ? e2.p : NaN);
+    updateQuantityArrow(e1 ? e1.q : NaN, e2 ? e2.q : NaN);
+  }
+
+  render();
+
+  // ---- Pointer-based dragging ----
+  let dragTarget = null;
+  let dragStartY = 0;
+  let dragStartA = 0;
+
+  function svgYFromEvent(evt){
+    const rect = svg.getBoundingClientRect();
+    return (evt.clientY - rect.top) * (H/rect.height);
+  }
+
+  function onPointerDown(which){
+    return function(evt){
+      evt.preventDefault();
+      dragTarget = which;
+      dragStartY = svgYFromEvent(evt);
+      dragStartA = lines[which].a;
+      evt.target.setPointerCapture && evt.target.setPointerCapture(evt.pointerId);
+    };
+  }
+  s2DragHit.addEventListener('pointerdown', onPointerDown('s2'));
+  d2DragHit.addEventListener('pointerdown', onPointerDown('d2'));
+
+  function onPointerMove(evt){
+    if(!dragTarget) return;
+    evt.preventDefault();
+    const y = svgYFromEvent(evt);
+    const deltaPrice = pixToPrice(dragStartY) - pixToPrice(y);
+    const line = lines[dragTarget];
+    line.a = Math.max(-50, Math.min(150, dragStartA - deltaPrice));
+    render();
+  }
+  function onPointerUp(){ dragTarget = null; }
+
+  svg.addEventListener('pointermove', onPointerMove);
+  window.addEventListener('pointerup', onPointerUp);
+  window.addEventListener('pointercancel', onPointerUp);
+
+  resetBtn.addEventListener('click', function(){
+    lines = JSON.parse(JSON.stringify(initial));
+    render();
+  });
+}
+
+initSupplyDemandGraph(document.getElementById('chart1'), document.getElementById('resetBtn1'));
+initSupplyDemandGraph(document.getElementById('chart2'), document.getElementById('resetBtn2'));
+</script>
+
+</body>
+</html>
